@@ -1,0 +1,58 @@
+<html>
+
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+
+<body>
+
+    <video id="video" controls autoplay></video>
+    <input id="video_input" type="file" accept="video/*" />
+    <input id="json_input" type="file" accept="application/JSON" />
+
+    <script>
+
+        const URL = window.URL || window.webkitURL
+
+        function fetch_json(url) {
+            var json = null
+            $.ajax({
+                'async': false,
+                'url': url,
+                'dataType': "json",
+                'success': function (data) {
+                    json = data
+                }
+            })
+            return json
+        }
+
+        function load_video(event) {
+            const file = this.files[0]
+            const file_url = URL.createObjectURL(file)
+            video.src = file_url
+        }
+
+        function load_json(event) {
+            const file = this.files[0]
+            const file_url = URL.createObjectURL(file)
+
+            var json = fetch_json(file_url);
+
+            console.log(json)
+        }
+
+        const video = document.getElementById('video')
+        const video_input = document.getElementById('video_input')
+        const json_input = document.getElementById('json_input')
+
+        video_input.addEventListener('change', load_video, false)
+        json_input.addEventListener('change', load_json, false)
+
+    </script>
+
+</body>
+
+</html>

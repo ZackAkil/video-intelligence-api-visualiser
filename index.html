@@ -3,16 +3,39 @@
 
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+    <style>
+        video{
+            height:300px;
+        }
+    </style>
 </head>
 
 
 <body>
 
-    <video id="video" controls autoplay></video>
-    <input id="video_input" type="file" accept="video/*" />
-    <input id="json_input" type="file" accept="application/JSON" />
+    <div id="app">
 
+        <video id="video" controls autoplay></video>
+        <input id="video_input" type="file" accept="video/*" />
+        <input id="json_input" type="file" accept="application/JSON" />
+
+        <object-tracking-viz v-bind:json_data="json_data"></object-tracking-viz>
+
+    </div>
+
+    <script src="components/object_tracking.js"></script>
     <script>
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                json_data: {}
+            }
+        })
+
 
         const URL = window.URL || window.webkitURL
 
@@ -29,27 +52,47 @@
             return json
         }
 
-        function load_video(event) {
-            const file = this.files[0]
-            const file_url = URL.createObjectURL(file)
-            video.src = file_url
+        function load_video_from_url(url) {
+            video.src = url
         }
 
-        function load_json(event) {
+        function load_video_dragged(event) {
             const file = this.files[0]
             const file_url = URL.createObjectURL(file)
-
-            var json = fetch_json(file_url);
-
-            console.log(json)
+            load_video_from_url(file_url)
         }
 
+        function load_json_from_url(url) {
+            var json = null
+            $.ajax({
+                'async': false,
+                'url': url,
+                'dataType': "json",
+                'success': function (data) {
+                    json = data
+                }
+            })
+            json_data = json
+            console.log(json_data)
+            app.json_data = json_data
+        }
+
+        function load_json_dragged(event) {
+            const file = this.files[0]
+            const file_url = URL.createObjectURL(file)
+            load_json_from_url(file_url);
+        }
+
+        var json_data = {}
         const video = document.getElementById('video')
         const video_input = document.getElementById('video_input')
         const json_input = document.getElementById('json_input')
 
-        video_input.addEventListener('change', load_video, false)
-        json_input.addEventListener('change', load_json, false)
+        video_input.addEventListener('change', load_video_dragged, false)
+        json_input.addEventListener('change', load_json_dragged, false)
+
+        load_json_from_url("test_json.json")
+        load_video_from_url("test_video.mp4")
 
     </script>
 

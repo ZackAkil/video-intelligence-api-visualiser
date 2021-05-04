@@ -2,7 +2,17 @@
 var style = document.createElement('style');
 style.innerHTML = `
 
+.segment-timeline{
+    width: 100%;
+    position: relative; 
+    height: 1em;
+}
 
+.segment{
+    position: absolute; 
+    background-color: blue;
+    height: 1em;
+}
 
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
@@ -10,7 +20,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
 
 // define component
 Vue.component('object-tracking-viz', {
-    props: ['json_data', 'video_height', 'video_width'],
+    props: ['json_data', 'video_height', 'video_width', 'video_length'],
     data: function () {
         return {
         }
@@ -73,10 +83,23 @@ Vue.component('object-tracking-viz', {
             return segments
         }
     },
+    methods: {
+        segment_style: function (segment) {
+            return {
+                left: ((segment[0] / this.video_length) * 100).toString() + '%',
+                width: (( (segment[1] - segment[0]) / this.video_length) * 100).toString() + '%'
+            }
+        }
+    },
     template: `
     <div>
         <h3>Object tracking</h3>
-        <p v-for="item, key in object_track_segments">This is my item : {{key}}, {{item}}</p>
+        <div v-for="segments, key in object_track_segments">
+            <p>{{key}}</p>
+            <div class="segment-timeline">
+                <div class="segment" v-for="segment in segments" v-bind:style="segment_style(segment)"></div>
+            </div>
+        </div>
     </div>
     `,
     mounted: function () {

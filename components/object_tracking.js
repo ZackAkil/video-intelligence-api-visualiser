@@ -63,11 +63,10 @@ Vue.component('object-tracking-viz', {
         ctx.fillStyle = "red";
         ctx.fill();
 
-        
+
 
         var time_update_interval = setInterval(function () {
-            const object_tracks =  document.querySelector('#object_tracks').__vue__.indexed_object_tracks
-            console.log('intevrkjabks', object_tracks)
+            const object_tracks = document.querySelector('#object_tracks').__vue__.indexed_object_tracks
             draw_bounding_boxes(object_tracks, ctx)
         }, 1000 / 30)
     }
@@ -75,15 +74,13 @@ Vue.component('object-tracking-viz', {
 
 
 function draw_bounding_boxes(object_tracks, ctx) {
-    console.log(video.currentTime)
     ctx.clearRect(0, 0, 500, 500)
 
     const current_time = video.currentTime
 
     object_tracks.forEach(tracked_object => {
 
-        if (tracked_object.has_frames_for_time(current_time)){
-            console.log('drawing box for ', tracked_object)
+        if (tracked_object.has_frames_for_time(current_time)) {
             draw_bounding_box(tracked_object.current_bounding_box(current_time), ctx)
         }
 
@@ -91,7 +88,6 @@ function draw_bounding_boxes(object_tracks, ctx) {
 }
 
 function draw_bounding_box(box, ctx) {
-    console.log('drawing', box)
     ctx.strokeStyle = "#000000"
     ctx.beginPath()
     ctx.rect(box.x, box.y, box.width, box.height)
@@ -132,7 +128,7 @@ class Object_Track {
         return ((this.start_time <= seconds) && (this.end_time >= seconds))
     }
 
-    current_bounding_box(seconds) {
+    most_recent_real_bounding_box(seconds) {
 
         for (let index = 0; index < this.frames.length; index++) {
             if (this.frames[index].time_offset > seconds) {
@@ -143,5 +139,41 @@ class Object_Track {
             }
         }
         return null
+    }
+
+    most_recent_interpolated_bounding_box(seconds) {
+
+        for (let index = 0; index < this.frames.length; index++) {
+            if (this.frames[index].time_offset > seconds) {
+                if (index > 0) {
+                    if ((index == 1) || (index == this.frames.length - 1))
+                        return this.frames[index - 1].box
+
+                    // create a new interpolated box between the 
+                    const start_box = this.frames[index - 1]
+                    const end_box = this.frames[index]
+                    const time_delt_ratio = (seconds - start_box.time_offset) / (end_box.time_offset - start_box.time_offset)
+
+                    const interpolated_box = {
+                        'x': start_box.box.x + (end_box.box.x - start_box.box.x) * time_delt_ratio,
+                        'y': start_box.box.y + (end_box.box.y - start_box.box.y) * time_delt_ratio,
+                        'width': start_box.box.width + (end_box.box.width - start_box.box.width) * time_delt_ratio,
+                        'height': start_box.box.height + (end_box.box.height - start_box.box.height) * time_delt_ratio
+                    }
+                    return interpolated_box
+
+                } else
+                    return null
+            }
+        }
+        return null
+    }
+
+    current_bounding_box(seconds, interpolate = true) {
+
+        if (interpolate)
+            return this.most_recent_interpolated_bounding_box(seconds)
+        else
+            return this.most_recent_real_bounding_box(seconds)
     }
 }

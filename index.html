@@ -22,7 +22,9 @@
         <input id="video_input" type="file" accept="video/*" />
         <input id="json_input" type="file" accept="application/JSON" />
 
-        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data"></object-tracking-viz>
+        <canvas id="my_canvas" width="500" height="300"></canvas>
+
+        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data"  v-bind:video_width="500"  v-bind:video_height="300"></object-tracking-viz>
 
     </div>
 

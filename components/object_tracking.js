@@ -23,6 +23,7 @@ Vue.component('object-tracking-viz', {
     props: ['json_data', 'video_height', 'video_width', 'video_length'],
     data: function () {
         return {
+            confidence_threshold : 0.6
         }
     },
     computed: {
@@ -47,7 +48,7 @@ Vue.component('object-tracking-viz', {
                 return []
 
             this.object_tracks.forEach(element => {
-                if (element.confidence > 0.6)
+                if (element.confidence > this.confidence_threshold)
                     indexed_tracks.push(new Object_Track(element, this.video_height, this.video_width))
             })
 

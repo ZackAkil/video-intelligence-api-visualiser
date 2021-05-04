@@ -7,8 +7,12 @@
 
 
     <style>
-        video{
-            height:300px;
+        video {
+            height: 300px;
+        }
+
+        video::-webkit-media-controls-fullscreen-button {
+            display: none !important;
         }
     </style>
 </head>
@@ -24,7 +28,8 @@
 
         <canvas id="my_canvas" width="500" height="300"></canvas>
 
-        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data"  v-bind:video_width="500"  v-bind:video_height="300"></object-tracking-viz>
+        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_width="500"
+            v-bind:video_height="300"></object-tracking-viz>
 
     </div>
 

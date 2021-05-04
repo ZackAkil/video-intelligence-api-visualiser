@@ -34,6 +34,9 @@ Vue.component('object-tracking-viz', {
     },
     computed: {
         object_tracks: function () {
+            `
+            Extract just the object tracking data from json
+            `
 
             if (!this.json_data.annotation_results)
                 return []
@@ -46,7 +49,10 @@ Vue.component('object-tracking-viz', {
         },
 
         indexed_object_tracks: function () {
-            // realise the time stamps and bound box coordinates
+            `
+            Create a clean list of object tracking data with realisied nullable fields 
+            and scaled bounding boxes ready to be drawn by the canvas
+            `
 
             const indexed_tracks = []
 
@@ -62,9 +68,9 @@ Vue.component('object-tracking-viz', {
         },
 
         object_track_segments: function () {
-
-            // return {}
-
+            ` 
+            create the list of cronological time segments that represent just when objects are present on screen
+            `
             const segments = {}
 
             this.indexed_object_tracks.forEach(object_tracks => {
@@ -120,18 +126,6 @@ Vue.component('object-tracking-viz', {
     mounted: function () {
         var canvas = document.getElementById("my_canvas")
         var ctx = canvas.getContext("2d")
-        ctx.strokeStyle = "#FF0000"
-
-        ctx.beginPath()
-        ctx.rect(20, 20, 150, 100)
-        ctx.stroke()
-
-        ctx.beginPath();
-        ctx.rect(20, 20, 150, 100);
-        ctx.fillStyle = "red";
-        ctx.fill();
-
-
 
         var time_update_interval = setInterval(function () {
             const object_tracks = document.querySelector('#object_tracks').__vue__.indexed_object_tracks

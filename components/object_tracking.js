@@ -10,8 +10,14 @@ style.innerHTML = `
 
 .segment{
     position: absolute; 
-    background-color: blue;
+    background-color: #4285F4;
     height: 1em;
+    border-radius: 5px;
+    min-width: 5px;
+}
+
+.segment:hover{
+    cursor: pointer;
 }
 
 `;
@@ -90,6 +96,9 @@ Vue.component('object-tracking-viz', {
                 left: ((segment[0] / this.video_length) * 100).toString() + '%',
                 width: (( (segment[1] - segment[0]) / this.video_length) * 100).toString() + '%'
             }
+        },
+        segment_clicked:function(segment_data){
+            this.$emit('segment-clicked', {seconds : segment_data[0]})
         }
     },
     template: `
@@ -100,7 +109,10 @@ Vue.component('object-tracking-viz', {
         <div v-for="segments, key in object_track_segments">
             <p>{{key}}</p>
             <div class="segment-timeline">
-                <div class="segment" v-for="segment in segments" v-bind:style="segment_style(segment)"></div>
+                <div class="segment" v-for="segment in segments" 
+                                    v-bind:style="segment_style(segment)" 
+                                    v-on:click="segment_clicked(segment)"
+                ></div>
             </div>
         </div>
     </div>

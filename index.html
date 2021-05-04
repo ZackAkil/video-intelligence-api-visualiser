@@ -29,17 +29,28 @@
         <canvas id="my_canvas" width="500" height="300"></canvas>
 
         <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_width="500"
-            v-bind:video_height="300" v-bind:video_length="252"></object-tracking-viz>
+            v-bind:video_height="300" v-bind:video_length="252" v-on:segment-clicked="jump_video"></object-tracking-viz>
 
     </div>
 
     <script src="components/object_tracking.js"></script>
     <script>
 
+        function jump_video_to_time(time) {
+            const video = document.querySelector('video')
+            video.currentTime = time
+            video.play()
+        }
+
         var app = new Vue({
             el: '#app',
             data: {
                 json_data: {}
+            }, methods: {
+                jump_video: function (event_data) {
+                    document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
+                    jump_video_to_time(event_data.seconds)
+                }
             }
         })
 

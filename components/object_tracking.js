@@ -42,12 +42,41 @@ Vue.component('object-tracking-viz', {
             })
 
             return indexed_tracks
+        },
+
+        object_track_segments: function () {
+
+            // return {}
+
+            const segments = {}
+
+            this.indexed_object_tracks.forEach(object_tracks => {
+
+                if (!(object_tracks.name in segments))
+                    segments[object_tracks.name] = []
+
+                var added = false
+
+                for (let index = 0; index < segments[object_tracks.name].length; index++) {
+                    const segment = segments[object_tracks.name][index]
+                    if (object_tracks.start_time < segment[1]) {
+                        segments[object_tracks.name][index][1] = Math.max(segments[object_tracks.name][index][1], object_tracks.end_time)
+                        added = true
+                        break
+                    }
+                }
+
+                if (!added)
+                    segments[object_tracks.name].push([object_tracks.start_time, object_tracks.end_time])
+            })
+
+            return segments
         }
     },
     template: `
     <div>
         <h3>Object tracking</h3>
-        <p v-for="item in object_tracks">This is my item : {{item}}</p>
+        <p v-for="item, key in object_track_segments">This is my item : {{key}}, {{item}}</p>
     </div>
     `,
     mounted: function () {

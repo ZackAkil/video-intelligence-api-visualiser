@@ -37,7 +37,8 @@ Vue.component('object-tracking-viz', {
                 return []
 
             this.object_tracks.forEach(element => {
-                indexed_tracks.push(new Object_Track(element, this.video_height, this.video_width))
+                if (element.confidence > 0.6)
+                    indexed_tracks.push(new Object_Track(element, this.video_height, this.video_width))
             })
 
             return indexed_tracks

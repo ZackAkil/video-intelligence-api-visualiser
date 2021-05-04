@@ -23,7 +23,7 @@ Vue.component('object-tracking-viz', {
     props: ['json_data', 'video_height', 'video_width', 'video_length'],
     data: function () {
         return {
-            confidence_threshold : 0.6
+            confidence_threshold : 0.5
         }
     },
     computed: {
@@ -95,6 +95,8 @@ Vue.component('object-tracking-viz', {
     template: `
     <div>
         <h3>Object tracking</h3>
+        <input type="range" min="0.5" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
+        {{confidence_threshold}}
         <div v-for="segments, key in object_track_segments">
             <p>{{key}}</p>
             <div class="segment-timeline">

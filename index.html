@@ -2,13 +2,33 @@
 
 
 <head>
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
 
     <style>
+        #video-conatiner {
+            position: relative;
+            width: 700px;
+        }
+
+        #video-conatiner > canvas{
+            width:100%;
+            position: absolute;
+            height: -webkit-fill-available;
+        }
+
         video {
-            height: 300px;
+            width:100%;
+            margin: auto;
+            display: block;
         }
 
         video::-webkit-media-controls-fullscreen-button {
@@ -22,11 +42,17 @@
 
     <div id="app">
 
-        <video id="video" controls autoplay></video>
+        <div id="video-conatiner">
+            <canvas id="my_canvas" width="500" height="300"></canvas>
+            <video id="video" controls autoplay></video>
+            
+        </div>
+
+
         <input id="video_input" type="file" accept="video/*" />
         <input id="json_input" type="file" accept="application/JSON" />
 
-        <canvas id="my_canvas" width="500" height="300"></canvas>
+
 
         <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_width="500"
             v-bind:video_height="300" v-bind:video_length="252" v-on:segment-clicked="jump_video"></object-tracking-viz>

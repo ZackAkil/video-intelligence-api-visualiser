@@ -39,31 +39,34 @@
 
         .mdl-layout__header {
             background-color: rgb(255 255 255);
-            color: black;
+            color: #5d5d5d;
+            font-weight: 100;
         }
 
         #upload-data {
             text-align: center;
         }
 
-        #feature-tabs{
+        #feature-tabs {
             margin: 15px;
             text-align: center;
         }
 
-        #feature-tabs > div{
+        #feature-tabs>div {
             display: inline-block;
             font-size: 1.4em;
-            padding:15px;
+            padding: 15px;
             cursor: pointer;
         }
 
 
-        #feature-tabs > .selected{
+        #feature-tabs>.selected {
             border-bottom: 2px solid #4285F4;
         }
 
-        
+        .logo {
+            width: inherit;
+        }
     </style>
 </head>
 
@@ -73,8 +76,12 @@
     <div id="app">
 
         <header class="mdl-layout__header">
+            <div class="mdl-layout-icon">
+                <img class="logo" src="image.png">
+            </div>
             <div class="mdl-layout__header-row">
-                <span class="mdl-layout-title">Cloud Video Intelligence API Visualiser</span>
+
+                <span class="mdl-layout-title">Video Intelligence API Visualiser</span>
             </div>
         </header>
 

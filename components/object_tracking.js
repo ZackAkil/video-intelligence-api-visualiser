@@ -79,6 +79,12 @@ style.innerHTML = `
     width: 60px;
 }
 
+.time-ticker{
+    height:100%;
+    width: 1px;
+    background-color: gray;
+}
+
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
 
@@ -174,7 +180,9 @@ Vue.component('object-tracking-viz', {
             <input type="range" min="0.5" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
+
         <transition-group name="segments" tag="div">
+            
             <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key">
                 <div class="label">{{key}}</div>
                 <div class="segment-timeline">

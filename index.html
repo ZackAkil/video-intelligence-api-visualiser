@@ -122,7 +122,7 @@
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
-                    jump_video_to_time(event_data.seconds)
+                    jump_video_to_time(event_data.seconds - 1)
                 }
             }
         })

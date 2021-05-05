@@ -14,9 +14,13 @@
 
 
     <style>
+        body{
+            text-align: center;
+        }
+
         #video-conatiner {
             position: relative;
-            width: 700px;
+            width: 800px;
             margin: 15px auto;
         }
 
@@ -25,6 +29,7 @@
             position: absolute;
             height: -webkit-fill-available;
             opacity: 0.8;
+            left: 0;
         }
 
         video {
@@ -79,6 +84,15 @@
             margin: 15px;
             overflow: hidden;
         }
+
+        .data-warning {
+            background-color: #ffffc3;
+            display: inline-block;
+            margin: auto;
+            position: relative;
+            padding: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -100,6 +114,10 @@
         <div id="video-conatiner">
             <canvas id="my_canvas" width="800" height="500"></canvas>
             <video id="video" controls autoplay></video>
+        </div>
+
+        <div v-if="data_misaligned" class="data-warning">
+            It looks like your json file dosn't algin with the video file, are you sure you have the right files uploaded?
         </div>
 
         <div id="upload-data">
@@ -142,6 +160,20 @@
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
                     jump_video_to_time(event_data.seconds - 1)
+                }
+            },
+            computed: {
+                data_misaligned: function () {
+                    console.log('delt')
+                    if (this.json_data)
+                        if (this.json_data.annotation_results) {
+                            const delta = this.video_info.length - this.json_data.annotation_results[0].segment.end_time_offset.seconds
+                            console.log('delt', delta)
+                            if (delta > 2) {
+                                return true
+                            }
+                        }
+                    return false
                 }
             }
         })

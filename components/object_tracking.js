@@ -13,7 +13,7 @@ style.innerHTML = `
 
 .segment-container{
     text-align: center;
-    margin:2px;
+    margin:10px;
 }
 
 .segment{

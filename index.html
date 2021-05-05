@@ -17,16 +17,17 @@
         #video-conatiner {
             position: relative;
             width: 700px;
+            margin: 15px auto;
         }
 
-        #video-conatiner > canvas{
-            width:100%;
+        #video-conatiner>canvas {
+            width: 100%;
             position: absolute;
             height: -webkit-fill-available;
         }
 
         video {
-            width:100%;
+            width: 100%;
             margin: auto;
             display: block;
         }
@@ -34,6 +35,34 @@
         video::-webkit-media-controls-fullscreen-button {
             display: none !important;
         }
+
+        .mdl-layout__header {
+            background-color: rgb(255 255 255);
+            color: black;
+        }
+
+        #upload-data {
+            text-align: center;
+        }
+
+        #feature-tabs{
+            margin: 15px;
+            text-align: center;
+        }
+
+        #feature-tabs > div{
+            display: inline-block;
+            font-size: 1.4em;
+            padding:15px;
+            cursor: pointer;
+        }
+
+
+        #feature-tabs > .selected{
+            border-bottom: 2px solid #4285F4;
+        }
+
+        
     </style>
 </head>
 
@@ -42,15 +71,25 @@
 
     <div id="app">
 
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Cloud Video Intelligence API Visualiser</span>
+            </div>
+        </header>
+
         <div id="video-conatiner">
             <canvas id="my_canvas" width="500" height="300"></canvas>
             <video id="video" controls autoplay></video>
-            
         </div>
 
+        <div id="upload-data">
+            <input id="video_input" type="file" accept="video/*" />
+            <input id="json_input" type="file" accept="application/JSON" />
+        </div>
 
-        <input id="video_input" type="file" accept="video/*" />
-        <input id="json_input" type="file" accept="application/JSON" />
+        <div id="feature-tabs">
+            <div class="selected mdl-shadow--2dp">Object Tracking</div>
+        </div>
 
 
 
@@ -79,6 +118,7 @@
                 }
             }
         })
+
 
 
         const URL = window.URL || window.webkitURL

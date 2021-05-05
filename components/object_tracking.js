@@ -3,9 +3,15 @@ var style = document.createElement('style');
 style.innerHTML = `
 
 .segment-timeline{
+    
     width: 100%;
     position: relative; 
     height: 1em;
+}
+
+.segment-container{
+    text-align: center;
+    margin:2px;
 }
 
 .segment{
@@ -14,10 +20,30 @@ style.innerHTML = `
     height: 1em;
     border-radius: 5px;
     min-width: 5px;
+    cursor: pointer;
 }
 
-.segment:hover{
-    cursor: pointer;
+.label{
+    display: inline-block;
+    background-color:  #4285F4;
+    color: white;
+    padding: 5px;
+    font-size: 1.1em;
+    vertical-align: middle;
+    width: 10%;
+    min-width: 190px;
+    border-radius: 5px;
+}
+
+
+
+.segment-timeline{
+    display: inline-block;
+    vertical-align: middle;
+    width: 80%;
+    background-color: #f5f5f5;
+    padding: 5px;
+    border-radius: 5px;
 }
 
 `;
@@ -108,12 +134,11 @@ Vue.component('object-tracking-viz', {
         }
     },
     template: `
-    <div>
-        <h3>Object tracking</h3>
+    <div calss="object-tracking-container">
         <input type="range" min="0.5" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
         {{confidence_threshold}}
-        <div v-for="segments, key in object_track_segments">
-            <p>{{key}}</p>
+        <div class="segment-container" v-for="segments, key in object_track_segments">
+            <div class="label">{{key}}</div>
             <div class="segment-timeline">
                 <div class="segment" v-for="segment in segments" 
                                     v-bind:style="segment_style(segment)" 
@@ -150,7 +175,7 @@ function draw_bounding_boxes(object_tracks, ctx) {
 }
 
 function draw_bounding_box(box, ctx) {
-    ctx.strokeStyle = "#000000"
+    ctx.strokeStyle = "#4285F4"
     ctx.beginPath()
     ctx.rect(box.x, box.y, box.width, box.height)
     ctx.stroke()

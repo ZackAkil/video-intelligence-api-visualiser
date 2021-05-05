@@ -24,6 +24,7 @@
             width: 100%;
             position: absolute;
             height: -webkit-fill-available;
+            opacity: 0.8;
         }
 
         video {
@@ -78,7 +79,7 @@
         </header>
 
         <div id="video-conatiner">
-            <canvas id="my_canvas" width="500" height="300"></canvas>
+            <canvas id="my_canvas" width="800" height="500"></canvas>
             <video id="video" controls autoplay></video>
         </div>
 
@@ -93,8 +94,8 @@
 
 
 
-        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_width="500"
-            v-bind:video_height="300" v-bind:video_length="252" v-on:segment-clicked="jump_video"></object-tracking-viz>
+        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_width="800"
+            v-bind:video_height="500" v-bind:video_length="252" v-on:segment-clicked="jump_video"></object-tracking-viz>
 
     </div>
 

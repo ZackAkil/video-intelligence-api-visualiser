@@ -2,6 +2,8 @@
 var style = document.createElement('style');
 style.innerHTML = `
 
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+
 .segment-timeline{
     
     width: 100%;
@@ -188,9 +190,12 @@ Vue.component('object-tracking-viz', {
     mounted: function () {
         var canvas = document.getElementById("my_canvas")
         var ctx = canvas.getContext("2d")
+        ctx.font = "20px Roboto";
 
         var time_update_interval = setInterval(function () {
-            const object_tracks = document.querySelector('#object_tracks').__vue__.indexed_object_tracks
+            const component = document.querySelector('#object_tracks').__vue__
+            const object_tracks = component.indexed_object_tracks
+            
             draw_bounding_boxes(object_tracks, ctx)
         }, 1000 / 30)
     }
@@ -198,24 +203,30 @@ Vue.component('object-tracking-viz', {
 
 
 function draw_bounding_boxes(object_tracks, ctx) {
-    ctx.clearRect(0, 0, 500, 500)
+    ctx.clearRect(0, 0, 800, 500)
 
     const current_time = video.currentTime
 
     object_tracks.forEach(tracked_object => {
 
         if (tracked_object.has_frames_for_time(current_time)) {
-            draw_bounding_box(tracked_object.current_bounding_box(current_time), ctx)
+            draw_bounding_box(tracked_object.current_bounding_box(current_time),tracked_object.name, ctx)
         }
 
     })
 }
 
-function draw_bounding_box(box, ctx) {
+function draw_bounding_box(box, name, ctx) {
     ctx.strokeStyle = "#4285F4"
     ctx.beginPath()
+    ctx.lineWidth = 3
     ctx.rect(box.x, box.y, box.width, box.height)
     ctx.stroke()
+    ctx.fillStyle = "#4285F4"
+    ctx.fillRect(box.x, box.y, name.length * 13, 32);
+    ctx.fillStyle = "#ffffff"
+    ctx.fillText(name, box.x + 5, box.y + 22);
+
 }
 
 

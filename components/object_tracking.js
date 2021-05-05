@@ -250,6 +250,7 @@ class Object_Track {
         this.name = json_data.entity.description
         this.start_time = nullable_time_offset_to_seconds(json_data.segment.start_time_offset)
         this.end_time = nullable_time_offset_to_seconds(json_data.segment.end_time_offset)
+        this.confidence = json_data.confidence
 
         this.frames = []
 

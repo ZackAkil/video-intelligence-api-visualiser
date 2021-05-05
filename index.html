@@ -67,6 +67,18 @@
         .logo {
             width: inherit;
         }
+
+        .upload-area {
+
+            display: inline-block;
+            width: 200px;
+            /* height: 62px; */
+            border: dashed #ededed 3px;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px;
+            overflow: hidden;
+        }
     </style>
 </head>
 
@@ -91,8 +103,14 @@
         </div>
 
         <div id="upload-data">
-            <input id="video_input" type="file" accept="video/*" />
-            <input id="json_input" type="file" accept="application/JSON" />
+            <div class="upload-area" ondrop="drop_video(event)" ondragover="drag_enter(event)">
+                <p>Your video</p>
+                <input id="video_input" type="file" accept="video/*" />
+            </div>
+            <div class="upload-area" ondrop="drop_json(event)" ondragover="drag_enter(event)">
+                <p>Your .json</p>
+                <input id="json_input" type="file" accept="application/JSON" />
+            </div>
         </div>
 
         <div id="feature-tabs">
@@ -101,8 +119,8 @@
 
 
 
-        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_width="800"
-            v-bind:video_height="500" v-bind:video_length="252" v-on:segment-clicked="jump_video"></object-tracking-viz>
+        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
+            v-on:segment-clicked="jump_video"></object-tracking-viz>
 
     </div>
 
@@ -118,7 +136,8 @@
         var app = new Vue({
             el: '#app',
             data: {
-                json_data: {}
+                json_data: {},
+                video_info: { width: 800, height: 500, length: 252 }
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
@@ -180,11 +199,45 @@
         const video_input = document.getElementById('video_input')
         const json_input = document.getElementById('json_input')
 
+
+        video.oncanplay = function () {
+            console.log("Can start playing video", video.duration, video.videoHeight, video.videoWidth)
+            app.video_info.length = video.duration
+            app.video_info.height = 500
+            app.video_info.width = 800
+        }
+
+        function drag_enter(ev) {
+            ev.preventDefault()
+        }
+
+        // function drag_leave(ev) {
+        //     ev.preventDefault()
+        //     console.log('leave', ev)
+        // }
+
+
+
+        function drop_video(ev) {
+            ev.preventDefault()
+            video_input.files = ev.dataTransfer.files
+            video_input.dispatchEvent(new Event('change'))
+
+        }
+
+        function drop_json(ev) {
+            ev.preventDefault()
+            json_input.files = ev.dataTransfer.files
+            json_input.dispatchEvent(new Event('change'))
+        }
+
         video_input.addEventListener('change', load_video_dragged, false)
         json_input.addEventListener('change', load_json_dragged, false)
 
         load_json_from_url("test_json.json")
         load_video_from_url("test_video.mp4")
+
+
 
     </script>
 

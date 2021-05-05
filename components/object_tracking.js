@@ -91,7 +91,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
 
 // define component
 Vue.component('object-tracking-viz', {
-    props: ['json_data', 'video_height', 'video_width', 'video_length'],
+    props: ['json_data', 'video_info'],
     data: function () {
         return {
             confidence_threshold: 0.5
@@ -126,7 +126,7 @@ Vue.component('object-tracking-viz', {
 
             this.object_tracks.forEach(element => {
                 if (element.confidence > this.confidence_threshold)
-                    indexed_tracks.push(new Object_Track(element, this.video_height, this.video_width))
+                    indexed_tracks.push(new Object_Track(element, this.video_info.height, this.video_info.width))
             })
 
             return indexed_tracks
@@ -164,8 +164,8 @@ Vue.component('object-tracking-viz', {
     methods: {
         segment_style: function (segment) {
             return {
-                left: ((segment[0] / this.video_length) * 100).toString() + '%',
-                width: (((segment[1] - segment[0]) / this.video_length) * 100).toString() + '%'
+                left: ((segment[0] / this.video_info.length) * 100).toString() + '%',
+                width: (((segment[1] - segment[0]) / this.video_info.length) * 100).toString() + '%'
             }
         },
         segment_clicked: function (segment_data) {
@@ -183,7 +183,7 @@ Vue.component('object-tracking-viz', {
 
         <transition-group name="segments" tag="div">
             
-            <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key">
+            <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
                 <div class="label">{{key}}</div>
                 <div class="segment-timeline">
                     <div class="segment" v-for="segment in segments" 

@@ -46,6 +46,37 @@ style.innerHTML = `
     border-radius: 5px;
 }
 
+
+
+
+.segments-enter-active, .segments-leave-active , .segment-container{
+    transition: all 0.2s;
+  }
+
+.segments-enter, .segments-leave-to /* .list-leave-active below version 2.1.8 */ {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+
+
+.confidence {
+    text-align: center;
+    margin: 20px;
+    font-size: 1.2em;
+}
+
+.confidence > input {
+    width: 300px;
+    vertical-align: middle;
+}
+
+.confidence > .confidence-value{
+    display: inline-block;
+    text-align: left;
+    width: 60px;
+}
+
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
 
@@ -55,7 +86,7 @@ Vue.component('object-tracking-viz', {
     props: ['json_data', 'video_height', 'video_width', 'video_length'],
     data: function () {
         return {
-            confidence_threshold : 0.5
+            confidence_threshold: 0.5
         }
     },
     computed: {
@@ -126,26 +157,32 @@ Vue.component('object-tracking-viz', {
         segment_style: function (segment) {
             return {
                 left: ((segment[0] / this.video_length) * 100).toString() + '%',
-                width: (( (segment[1] - segment[0]) / this.video_length) * 100).toString() + '%'
+                width: (((segment[1] - segment[0]) / this.video_length) * 100).toString() + '%'
             }
         },
-        segment_clicked:function(segment_data){
-            this.$emit('segment-clicked', {seconds : segment_data[0]})
+        segment_clicked: function (segment_data) {
+            this.$emit('segment-clicked', { seconds: segment_data[0] })
         }
     },
     template: `
     <div calss="object-tracking-container">
-        <input type="range" min="0.5" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
-        {{confidence_threshold}}
-        <div class="segment-container" v-for="segments, key in object_track_segments">
-            <div class="label">{{key}}</div>
-            <div class="segment-timeline">
-                <div class="segment" v-for="segment in segments" 
-                                    v-bind:style="segment_style(segment)" 
-                                    v-on:click="segment_clicked(segment)"
-                ></div>
-            </div>
+
+        <div class="confidence">
+            <span>Confidence threshold</span>
+            <input type="range" min="0.5" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
+            <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
+        <transition-group name="segments" tag="div">
+            <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key">
+                <div class="label">{{key}}</div>
+                <div class="segment-timeline">
+                    <div class="segment" v-for="segment in segments" 
+                                        v-bind:style="segment_style(segment)" 
+                                        v-on:click="segment_clicked(segment)"
+                    ></div>
+                </div>
+            </div>
+        </transition-group>
     </div>
     `,
     mounted: function () {

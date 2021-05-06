@@ -2,6 +2,17 @@
 var style = document.createElement('style');
 style.innerHTML = `
 
+.current_labels > div{
+    display: inline-block;
+    margin: 5px;
+    background-color: white;
+    border-radius: 5px;
+    padding:5px;
+}
+
+.current_labels{
+    min-height: 45px;
+}
 
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
@@ -61,7 +72,7 @@ Vue.component('label_detection-viz', {
         segment_clicked: function (segment_data) {
             this.$emit('segment-clicked', { seconds: segment_data.start_time })
         },
-        label_on_screen:function(label){
+        label_on_screen: function (label) {
             return label.has_segment_for_time(this.current_time)
         }
     },
@@ -75,7 +86,7 @@ Vue.component('label_detection-viz', {
         </div>
 
         <div class="current_labels">
-            <div v-for="label in indexed_detected_labels" v-bind:key="label.name" v-if="label_on_screen(label)">{{label.name}}</div>
+            <div class="mdl-shadow--2dp" v-for="label in indexed_detected_labels" v-bind:key="label.name" v-if="label_on_screen(label)">{{label.name}}</div>
         </div>
 
         <transition-group name="segments" tag="div">
@@ -98,7 +109,6 @@ Vue.component('label_detection-viz', {
         const component = this
 
         this.interval_timer = setInterval(function () {
-            console.log('running')
             component.current_time = video.currentTime
         }, 1000 / 10)
     },

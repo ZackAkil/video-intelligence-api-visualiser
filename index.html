@@ -137,7 +137,7 @@
 
 
 
-        <object-tracking-viz id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
+        <object-tracking-viz v-if="show_tracking" id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
             v-on:segment-clicked="jump_video"></object-tracking-viz>
 
     </div>
@@ -155,7 +155,8 @@
             el: '#app',
             data: {
                 json_data: {},
-                video_info: { width: 800, height: 500, length: 252 }
+                video_info: { width: 800, height: 500, length: 252 },
+                show_tracking: true
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })

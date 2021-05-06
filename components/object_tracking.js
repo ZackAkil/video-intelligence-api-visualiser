@@ -94,7 +94,9 @@ Vue.component('object-tracking-viz', {
     props: ['json_data', 'video_info'],
     data: function () {
         return {
-            confidence_threshold: 0.5
+            confidence_threshold: 0.5,
+            interval_timer: null,
+            ctx: null
         }
     },
     computed: {
@@ -196,16 +198,24 @@ Vue.component('object-tracking-viz', {
     </div>
     `,
     mounted: function () {
+        console.log('mounted component')
         var canvas = document.getElementById("my_canvas")
-        var ctx = canvas.getContext("2d")
-        ctx.font = "20px Roboto";
+        this.ctx = canvas.getContext("2d")
+        this.ctx.font = "20px Roboto"
+        const ctx = this.ctx
 
-        var time_update_interval = setInterval(function () {
+        this.interval_timer = setInterval(function () {
+            console.log('running')
             const component = document.querySelector('#object_tracks').__vue__
             const object_tracks = component.indexed_object_tracks
             
             draw_bounding_boxes(object_tracks, ctx)
         }, 1000 / 30)
+    },
+    beforeDestroy:function(){
+        console.log('destroying component')
+        clearInterval(this.interval_timer)
+        this.ctx.clearRect(0, 0, 800, 500)
     }
 })
 

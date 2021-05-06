@@ -147,7 +147,7 @@
 
     <script src="components/object_tracking.js"></script>
     <script src="components/label_detection.js"></script>
-    
+
     <script>
 
         function jump_video_to_time(time) {
@@ -165,7 +165,7 @@
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
-                    jump_video_to_time(event_data.seconds - 1)
+                    jump_video_to_time(event_data.seconds - 0.5)
                 }
             },
             computed: {

@@ -14,6 +14,7 @@ Vue.component('label_detection-viz', {
         return {
             confidence_threshold: 0.5,
             interval_timer: null,
+            current_time: 0
         }
     },
     computed: {
@@ -59,6 +60,9 @@ Vue.component('label_detection-viz', {
         },
         segment_clicked: function (segment_data) {
             this.$emit('segment-clicked', { seconds: segment_data.start_time })
+        },
+        label_on_screen:function(label){
+            return label.has_segment_for_time(this.current_time)
         }
     },
     template: `
@@ -70,9 +74,13 @@ Vue.component('label_detection-viz', {
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
 
+        <div class="current_labels">
+            <div v-for="label in indexed_detected_labels" v-bind:key="label.name" v-if="label_on_screen(label)">{{label.name}}</div>
+        </div>
+
         <transition-group name="segments" tag="div">
             
-            <div class="segment-container" v-for="label in indexed_detected_labels" v-bind:key="label.name + 'z'">
+            <div class="segment-container" v-for="label in indexed_detected_labels" v-bind:key="label.name">
                 <div class="label">{{label.name}}</div>
                 <div class="segment-timeline">
                     <div class="segment" v-for="segment in label.segments" 
@@ -87,12 +95,12 @@ Vue.component('label_detection-viz', {
     mounted: function () {
         console.log('mounted component')
 
-        // this.interval_timer = setInterval(function () {
-        //     console.log('running')
-        //     const component = document.querySelector('#object_tracks').__vue__
-        //     const object_tracks = component.indexed_object_tracks
-        //     draw_bounding_boxes(object_tracks, ctx)
-        // }, 1000 / 15)
+        const component = this
+
+        this.interval_timer = setInterval(function () {
+            console.log('running')
+            component.current_time = video.currentTime
+        }, 1000 / 10)
     },
     beforeDestroy: function () {
         console.log('destroying component')

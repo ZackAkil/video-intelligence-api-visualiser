@@ -204,9 +204,10 @@ Vue.component('object-tracking-viz', {
         this.ctx.font = "20px Roboto"
         const ctx = this.ctx
 
+        const component = this
+
         this.interval_timer = setInterval(function () {
             console.log('running')
-            const component = document.querySelector('#object_tracks').__vue__
             const object_tracks = component.indexed_object_tracks
             
             draw_bounding_boxes(object_tracks, ctx)

@@ -140,9 +140,14 @@
         <object-tracking-viz v-if="show_tracking" id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
             v-on:segment-clicked="jump_video"></object-tracking-viz>
 
+        <label_detection-viz id="label_detection" v-bind:json_data="json_data" v-bind:video_info="video_info"
+            v-on:segment-clicked="jump_video"></label_detection-viz>
+
     </div>
 
     <script src="components/object_tracking.js"></script>
+    <script src="components/label_detection.js"></script>
+    
     <script>
 
         function jump_video_to_time(time) {
@@ -156,7 +161,7 @@
             data: {
                 json_data: {},
                 video_info: { width: 800, height: 500, length: 252 },
-                show_tracking: true
+                show_tracking: false
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })

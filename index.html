@@ -132,16 +132,16 @@
         </div>
 
         <div id="feature-tabs">
-            <div class="selected mdl-shadow--2dp">Object Tracking</div>
-            <div class="selected mdl-shadow--2dp">Label Detection</div>
+            <div class="selected mdl-shadow--2dp" v-on:click="current_view = 'object_tracking'">Object Tracking</div>
+            <div class="selected mdl-shadow--2dp" v-on:click="current_view = 'label_detection'">Label Detection</div>
         </div>
 
 
 
-        <object-tracking-viz v-if="show_tracking" id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
+        <object-tracking-viz v-if="current_view == 'object_tracking'" id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
             v-on:segment-clicked="jump_video"></object-tracking-viz>
 
-        <label_detection-viz id="label_detection" v-bind:json_data="json_data" v-bind:video_info="video_info"
+        <label_detection-viz v-if="current_view == 'label_detection'"  id="label_detection" v-bind:json_data="json_data" v-bind:video_info="video_info"
             v-on:segment-clicked="jump_video"></label_detection-viz>
 
     </div>
@@ -162,7 +162,7 @@
             data: {
                 json_data: {},
                 video_info: { width: 800, height: 500, length: 252 },
-                show_tracking: false
+                current_view: ''
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })

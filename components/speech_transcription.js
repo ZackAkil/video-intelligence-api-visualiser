@@ -39,12 +39,12 @@ Vue.component('speech-transcription-viz', {
             `
 
             const indexed_speech = []
-            
+
             if (this.detected_speech) {
 
                 this.detected_speech.forEach(element => {
-                    const detected_speech = new Detected_Speech(element)
-                    indexed_speech.push(detected_speech)
+                    if(element.alternatives[0].transcript)
+                    indexed_speech.push(new Detected_Speech(element))
                     // if (detected_label.segments.length > 0)
                     //     indexed_segments.push(detected_label)
                 })
@@ -70,9 +70,11 @@ Vue.component('speech-transcription-viz', {
     template: `
     <div class="speech-transcription-container">
 
-    <div class="data-warning" v-if="detected_speech.length == 0"> No shot data in JSON</div>
+        <div class="data-warning" v-if="detected_speech.length == 0"> No shot data in JSON</div>
 
-        <p v-for="speech in indexed_speech" v-on:click="word_clicked(shot)"> {{speech.text}} </p>
+        <p v-for="speech in indexed_speech"> 
+            <span v-for="word in speech.words" v-on:click="word_clicked(word)"> {{word.word}} </span>
+        </p>
 
     </div>
     `,
@@ -91,11 +93,27 @@ Vue.component('speech-transcription-viz', {
     }
 })
 
+class Detected_Word {
+    constructor(json_data) {
+        this.word = json_data.word
+        this.start_time = nullable_time_offset_to_seconds(json_data.start_time)
+        this.end_time = nullable_time_offset_to_seconds(json_data.end_time)
+    }
+}
+
 
 class Detected_Speech {
     constructor(json_data) {
         this.text = json_data.alternatives[0].transcript
-        // this.end_time = nullable_time_offset_to_seconds(json_data.end_time_offset)
+
+        this.words = []
+        json_data.alternatives[0].words.forEach(word => {
+            this.words.push(new Detected_Word(word))
+        })
+
+        this.start_time = this.words[0].start_time
+        this.end_time = this.words[this.words.length - 1].end_time
+        
     }
 
     within_time(seconds) {

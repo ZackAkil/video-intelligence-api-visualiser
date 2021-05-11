@@ -19,7 +19,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
 
 
 // define component
-Vue.component('label_detection-viz', {
+Vue.component('label-detection-viz', {
     props: ['json_data', 'video_info'],
     data: function () {
         return {

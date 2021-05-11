@@ -147,7 +147,7 @@
         <object-tracking-viz v-if="current_view == 'object_tracking'" id="object_tracks" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></object-tracking-viz>
 
-        <label_detection-viz v-if="current_view == 'label_detection'" id="label_detection" v-bind:json_data="json_data"
+        <label-detection-viz v-if="current_view == 'label_detection'" id="label_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></label_detection-viz>
 
         <shot-detection-viz v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"

@@ -135,7 +135,12 @@ class Detected_Label_Segment {
 
 class Detected_Label {
     constructor(json_data, confidence_threshold) {
-        this.name = json_data.entity.description
+        this.name = ""
+        if (json_data.category_entities)
+            this.name += json_data.category_entities[0].description + ' '
+
+
+        this.name += json_data.entity.description
         this.segments = []
         this.highest_segment_confidence = 0
 

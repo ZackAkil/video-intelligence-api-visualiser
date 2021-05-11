@@ -174,7 +174,7 @@ Vue.component('object-tracking-viz', {
             }
         },
         segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data[0] })
+            this.$emit('segment-clicked', { seconds: segment_data[0] -0.5 })
         }
     },
     template: `

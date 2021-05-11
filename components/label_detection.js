@@ -70,7 +70,7 @@ Vue.component('label-detection-viz', {
             }
         },
         segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data.start_time })
+            this.$emit('segment-clicked', { seconds: segment_data.start_time -0.5})
         },
         label_on_screen: function (label) {
             return label.has_segment_for_time(this.current_time)

@@ -77,13 +77,16 @@ Vue.component('label-detection-viz', {
         }
     },
     template: `
-    <div calss="label_detection-container">
+    <div calss="label-detection-container">
 
         <div class="confidence">
             <span>Confidence threshold</span>
             <input type="range" min="0.0" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
+
+        <div class="data-warning" v-if="detected_labels.length == 0"> No label data in JSON</div>
+
 
         <div class="current_labels">
             <div class="mdl-shadow--2dp" v-for="label in indexed_detected_labels" v-bind:key="label.name" v-if="label_on_screen(label)">{{label.name}}</div>

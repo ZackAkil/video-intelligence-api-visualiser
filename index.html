@@ -115,7 +115,7 @@
 
         <div id="video-conatiner">
             <canvas id="my_canvas" width="800" height="500"></canvas>
-            <video id="video" controls autoplay></video>
+            <video id="video" controls autoplay muted></video>
         </div>
 
         <!-- <div v-if="data_misaligned" class="data-warning">
@@ -148,9 +148,9 @@
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></object-tracking-viz>
 
         <label-detection-viz v-if="current_view == 'label_detection'" id="label_detection" v-bind:json_data="json_data"
-            v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></label_detection-viz>
+            v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></label-detection-viz>
 
-        <shot-detection-viz v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
+        <shot-detection-viz  v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:shot-clicked="jump_video"></shot-detection-viz>
 
     </div>

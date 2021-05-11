@@ -186,6 +186,8 @@ Vue.component('object-tracking-viz', {
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
 
+        <div class="data-warning" v-if="object_tracks.length == 0"> No object tracking data in JSON</div>
+
         <transition-group name="segments" tag="div">
             
             <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">

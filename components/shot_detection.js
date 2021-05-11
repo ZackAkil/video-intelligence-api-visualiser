@@ -68,10 +68,9 @@ Vue.component('shot-detection-viz', {
     template: `
     <div calss="shot_detection-container">
 
+    <div class="data-warning" v-if="detected_shots.length == 0"> No shot data in JSON</div>
+
     <div v-for="shot in indexed_detected_shots" v-on:click="shot_clicked(shot)"> {{shot.start_time}} -> {{shot.end_time}}</div>
-
-            
-
 
     </div>
     `,

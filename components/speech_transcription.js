@@ -88,7 +88,7 @@ Vue.component('speech-transcription-viz', {
     template: `
     <div class="speech-transcription-container">
 
-        <div class="data-warning" v-if="detected_speech.length == 0"> No shot data in JSON</div>
+        <div class="data-warning" v-if="detected_speech.length == 0"> No speech data in JSON</div>
 
         <p class="speech" v-for="speech in indexed_speech" v-bind:class="{current_speech:speech.current_speech}"> 
             <span class="word" v-bind:class="{current_word:word.current_word}" v-for="word in speech.words" v-on:click="word_clicked(word)" > {{word.word}} </span>

@@ -63,8 +63,6 @@ Vue.component('speech-transcription-viz', {
                 this.detected_speech.forEach(element => {
                     if(element.alternatives[0].transcript)
                     indexed_speech.push(new Detected_Speech(element, this.current_time))
-                    // if (detected_label.segments.length > 0)
-                    //     indexed_segments.push(detected_label)
                 })
             }
 
@@ -72,18 +70,10 @@ Vue.component('speech-transcription-viz', {
         },
     },
     methods: {
-        // segment_style: function (segment) {
-        //     return {
-        //         left: ((segment.start_time / this.video_info.length) * 100).toString() + '%',
-        //         width: (((segment.end_time - segment.start_time) / this.video_info.length) * 100).toString() + '%'
-        //     }
-        // },
+ 
         word_clicked: function (word_data) {
             this.$emit('word-clicked', { seconds: word_data.start_time })
         },
-        // label_on_screen: function (label) {
-        //     return label.has_segment_for_time(this.current_time)
-        // }
     },
     template: `
     <div class="speech-transcription-container">

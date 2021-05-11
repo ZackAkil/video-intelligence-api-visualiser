@@ -119,7 +119,8 @@
         </div>
 
         <div v-if="data_misaligned" class="data-warning">
-            It looks like the json data dosn't align with the video file, are you sure you have the right files uploaded?
+            It looks like the json data dosn't align with the video file, are you sure you have all of the right files
+            uploaded?
         </div>
 
         <div id="upload-data">
@@ -138,8 +139,10 @@
                 v-on:click="current_view = 'object_tracking'">Object Tracking</div>
             <div v-bind:class="{selected:current_view == 'label_detection'}"
                 v-on:click="current_view = 'label_detection'">Label Detection</div>
-                <div v-bind:class="{selected:current_view == 'shot_detection'}"
+            <div v-bind:class="{selected:current_view == 'shot_detection'}"
                 v-on:click="current_view = 'shot_detection'">Shot Detection</div>
+            <div v-bind:class="{selected:current_view == 'speech_transcription'}"
+                v-on:click="current_view = 'speech_transcription'">Speech Transcription</div>
         </div>
 
 
@@ -150,14 +153,18 @@
         <label-detection-viz v-if="current_view == 'label_detection'" id="label_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></label-detection-viz>
 
-        <shot-detection-viz  v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
+        <shot-detection-viz v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:shot-clicked="jump_video"></shot-detection-viz>
+
+        <speech-transcription-viz v-if="current_view == 'speech_transcription'" id="speech_transcription" v-bind:json_data="json_data"
+            v-bind:video_info="video_info" v-on:word-clicked="jump_video"></speech-transcription-viz>
 
     </div>
 
     <script src="components/object_tracking.js"></script>
     <script src="components/label_detection.js"></script>
     <script src="components/shot_detection.js"></script>
+    <script src="components/speech_transcription.js"></script>
 
     <script>
 
@@ -187,7 +194,7 @@
                         if (this.json_data.annotation_results) {
                             const delta = this.video_info.length - this.json_data.annotation_results[0].segment.end_time_offset.seconds
                             console.log('delt', delta)
-                            if (Math.abs(delta) > 2 ) {
+                            if (Math.abs(delta) > 2) {
                                 return true
                             }
                         }

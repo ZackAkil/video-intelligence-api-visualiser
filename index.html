@@ -14,7 +14,7 @@
 
 
     <style>
-        body{
+        body {
             text-align: center;
         }
 
@@ -59,9 +59,11 @@
 
         #feature-tabs>div {
             display: inline-block;
-            font-size: 1.4em;
-            padding: 15px;
+            font-size: 1.2em;
+            padding: 12px;
             cursor: pointer;
+            color: #777777;
+            font-weight: 300;
         }
 
 
@@ -132,22 +134,30 @@
         </div>
 
         <div id="feature-tabs">
-            <div class="selected mdl-shadow--2dp" v-on:click="current_view = 'object_tracking'">Object Tracking</div>
-            <div class="selected mdl-shadow--2dp" v-on:click="current_view = 'label_detection'">Label Detection</div>
+            <div v-bind:class="{selected:current_view == 'object_tracking'}"
+                v-on:click="current_view = 'object_tracking'">Object Tracking</div>
+            <div v-bind:class="{selected:current_view == 'label_detection'}"
+                v-on:click="current_view = 'label_detection'">Label Detection</div>
+                <div v-bind:class="{selected:current_view == 'shot_detection'}"
+                v-on:click="current_view = 'shot_detection'">Shot Detection</div>
         </div>
 
 
 
-        <object-tracking-viz v-if="current_view == 'object_tracking'" id="object_tracks" v-bind:json_data="json_data" v-bind:video_info="video_info"
-            v-on:segment-clicked="jump_video"></object-tracking-viz>
+        <object-tracking-viz v-if="current_view == 'object_tracking'" id="object_tracks" v-bind:json_data="json_data"
+            v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></object-tracking-viz>
 
-        <label_detection-viz v-if="current_view == 'label_detection'"  id="label_detection" v-bind:json_data="json_data" v-bind:video_info="video_info"
-            v-on:segment-clicked="jump_video"></label_detection-viz>
+        <label_detection-viz v-if="current_view == 'label_detection'" id="label_detection" v-bind:json_data="json_data"
+            v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></label_detection-viz>
+
+        <shot-detection-viz v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
+            v-bind:video_info="video_info" v-on:shot-clicked="jump_video"></shot-detection-viz>
 
     </div>
 
     <script src="components/object_tracking.js"></script>
     <script src="components/label_detection.js"></script>
+    <script src="components/shot_detection.js"></script>
 
     <script>
 
@@ -162,11 +172,11 @@
             data: {
                 json_data: {},
                 video_info: { width: 800, height: 500, length: 252 },
-                current_view: ''
+                current_view: 'object_tracking'
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
-                    jump_video_to_time(event_data.seconds - 0.5)
+                    jump_video_to_time(event_data.seconds)
                 }
             },
             computed: {

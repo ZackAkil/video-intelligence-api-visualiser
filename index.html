@@ -118,9 +118,9 @@
             <video id="video" controls autoplay muted></video>
         </div>
 
-        <!-- <div v-if="data_misaligned" class="data-warning">
-            It looks like your json file dosn't algin with the video file, are you sure you have the right files uploaded?
-        </div> -->
+        <div v-if="data_misaligned" class="data-warning">
+            It looks like the json data dosn't align with the video file, are you sure you have the right files uploaded?
+        </div>
 
         <div id="upload-data">
             <div class="upload-area" ondrop="drop_video(event)" ondragover="drag_enter(event)">
@@ -172,6 +172,7 @@
             data: {
                 json_data: {},
                 video_info: { width: 800, height: 500, length: 252 },
+                video_length: 252,
                 current_view: 'object_tracking'
             }, methods: {
                 jump_video: function (event_data) {
@@ -186,7 +187,7 @@
                         if (this.json_data.annotation_results) {
                             const delta = this.video_info.length - this.json_data.annotation_results[0].segment.end_time_offset.seconds
                             console.log('delt', delta)
-                            if (delta > 2) {
+                            if (Math.abs(delta) > 2 ) {
                                 return true
                             }
                         }
@@ -252,6 +253,7 @@
         video.oncanplay = function () {
             console.log("Can start playing video", video.duration, video.videoHeight, video.videoWidth)
             app.video_info.length = video.duration
+            app.video_length.duration
             app.video_info.height = 500
             app.video_info.width = 800
         }

@@ -143,21 +143,24 @@ Vue.component('object-tracking-viz', {
             this.indexed_object_tracks.forEach(object_tracks => {
 
                 if (!(object_tracks.name in segments))
-                    segments[object_tracks.name] = []
+                    segments[object_tracks.name] = {'segments':[], 'count':0}
+
+                segments[object_tracks.name].count++
 
                 var added = false
 
                 for (let index = 0; index < segments[object_tracks.name].length; index++) {
-                    const segment = segments[object_tracks.name][index]
+                    
+                    const segment = segments[object_tracks.name].segments[index]
                     if (object_tracks.start_time < segment[1]) {
-                        segments[object_tracks.name][index][1] = Math.max(segments[object_tracks.name][index][1], object_tracks.end_time)
+                        segments[object_tracks.name].segments[index][1] = Math.max(segments[object_tracks.name].segments[index][1], object_tracks.end_time)
                         added = true
                         break
                     }
                 }
 
                 if (!added)
-                    segments[object_tracks.name].push([object_tracks.start_time, object_tracks.end_time])
+                    segments[object_tracks.name].segments.push([object_tracks.start_time, object_tracks.end_time])
             })
 
             return segments
@@ -186,9 +189,9 @@ Vue.component('object-tracking-viz', {
         <transition-group name="segments" tag="div">
             
             <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
-                <div class="label">{{key}}</div>
+                <div class="label">{{key}} ({{segments.count}})</div>
                 <div class="segment-timeline">
-                    <div class="segment" v-for="segment in segments" 
+                    <div class="segment" v-for="segment in segments.segments" 
                                         v-bind:style="segment_style(segment)" 
                                         v-on:click="segment_clicked(segment)"
                     ></div>

@@ -4,6 +4,23 @@ style.innerHTML = `
 
 .speech-transcription-container{
     text-align:left;
+    margin:30px;
+}
+
+.word{
+    cursor: pointer;
+}
+
+.speech{
+    padding:5px;
+}
+
+.current_word{
+    border-bottom: solid #4285F4 2px;
+}
+
+.current_speech{
+    border-left: solid #0F9D58 2px;
 }
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
@@ -15,7 +32,8 @@ Vue.component('speech-transcription-viz', {
     data: function () {
         return {
             interval_timer: null,
-            current_time: 0
+            current_time: 0,
+            indexed_speech_cache: null,
         }
     },
     computed: {
@@ -44,7 +62,7 @@ Vue.component('speech-transcription-viz', {
 
                 this.detected_speech.forEach(element => {
                     if(element.alternatives[0].transcript)
-                    indexed_speech.push(new Detected_Speech(element))
+                    indexed_speech.push(new Detected_Speech(element, this.current_time))
                     // if (detected_label.segments.length > 0)
                     //     indexed_segments.push(detected_label)
                 })
@@ -72,8 +90,8 @@ Vue.component('speech-transcription-viz', {
 
         <div class="data-warning" v-if="detected_speech.length == 0"> No shot data in JSON</div>
 
-        <p v-for="speech in indexed_speech"> 
-            <span v-for="word in speech.words" v-on:click="word_clicked(word)"> {{word.word}} </span>
+        <p class="speech" v-for="speech in indexed_speech" v-bind:class="{current_speech:speech.current_speech}"> 
+            <span class="word" v-bind:class="{current_word:word.current_word}" v-for="word in speech.words" v-on:click="word_clicked(word)" > {{word.word}} </span>
         </p>
 
     </div>
@@ -81,38 +99,46 @@ Vue.component('speech-transcription-viz', {
     mounted: function () {
         console.log('mounted component')
 
-        // const component = this
+        const component = this
 
-        // this.interval_timer = setInterval(function () {
-        //     component.current_time = video.currentTime
-        // }, 1000 / 10)
+        this.interval_timer = setInterval(function () {
+            console.log('running')
+            component.current_time = video.currentTime
+        }, 1000 / 5)
     },
     beforeDestroy: function () {
         console.log('destroying component')
-        // clearInterval(this.interval_timer)
+        clearInterval(this.interval_timer)
     }
 })
 
 class Detected_Word {
-    constructor(json_data) {
+    constructor(json_data, current_time) {
         this.word = json_data.word
         this.start_time = nullable_time_offset_to_seconds(json_data.start_time)
         this.end_time = nullable_time_offset_to_seconds(json_data.end_time)
+        this.current_word =  this.within_time(current_time)
+    }
+
+    within_time(seconds) {
+        return ((this.start_time <= seconds) && (this.end_time >= seconds))
     }
 }
 
 
 class Detected_Speech {
-    constructor(json_data) {
+    constructor(json_data, current_time) {
         this.text = json_data.alternatives[0].transcript
 
         this.words = []
         json_data.alternatives[0].words.forEach(word => {
-            this.words.push(new Detected_Word(word))
+            this.words.push(new Detected_Word(word, current_time))
         })
 
         this.start_time = this.words[0].start_time
         this.end_time = this.words[this.words.length - 1].end_time
+
+        this.current_speech = this.within_time(current_time)
         
     }
 

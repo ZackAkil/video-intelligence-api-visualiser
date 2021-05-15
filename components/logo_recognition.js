@@ -1,99 +1,16 @@
-
-console.log('IMPORTING OBJECT TRACKING')
+console.log('IMPORTING LOGO RECOGNITION')
 
 // define style rules to be programtically loaded
 var style = document.createElement('style');
 style.innerHTML = `
 
-@import url(https://fonts.googleapis.com/css?family=Roboto);
-
-.segment-timeline{
-    
-    width: 100%;
-    position: relative; 
-    height: 1em;
-}
-
-.segment-container{
-    text-align: center;
-    margin:10px;
-}
-
-.segment{
-    position: absolute; 
-    background-color: #4285F4;
-    height: 1em;
-    border-radius: 5px;
-    min-width: 5px;
-    cursor: pointer;
-}
-
-.label{
-    display: inline-block;
-    background-color:  #4285F4;
-    color: white;
-    padding: 5px;
-    font-size: 1.1em;
-    vertical-align: middle;
-    width: 10%;
-    min-width: 190px;
-    border-radius: 5px;
-}
-
-
-
-.segment-timeline{
-    display: inline-block;
-    vertical-align: middle;
-    width: 80%;
-    background-color: #f5f5f5;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-
-
-
-.segments-enter-active, .segments-leave-active , .segment-container{
-    transition: all 0.2s;
-  }
-
-.segments-enter, .segments-leave-to /* .list-leave-active below version 2.1.8 */ {
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-
-
-.confidence {
-    text-align: center;
-    margin: 20px;
-    font-size: 1.2em;
-}
-
-.confidence > input {
-    width: 300px;
-    vertical-align: middle;
-}
-
-.confidence > .confidence-value{
-    display: inline-block;
-    text-align: left;
-    width: 60px;
-}
-
-.time-ticker{
-    height:100%;
-    width: 1px;
-    background-color: gray;
-}
 
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
 
 
 // define component
-Vue.component('object-tracking-viz', {
+Vue.component('logo-recognition-viz', {
     props: ['json_data', 'video_info'],
     data: function () {
         return {
@@ -103,35 +20,35 @@ Vue.component('object-tracking-viz', {
         }
     },
     computed: {
-        object_tracks: function () {
+        logo_tracks: function () {
             `
-            Extract just the object tracking data from json
+            Extract just the logo tracking data from json
             `
 
             if (!this.json_data.annotation_results)
                 return []
 
             for (let index = 0; index < this.json_data.annotation_results.length; index++) {
-                if ('object_annotations' in this.json_data.annotation_results[index])
-                    return this.json_data.annotation_results[index].object_annotations
+                if ('logo_recognition_annotations' in this.json_data.annotation_results[index])
+                    return this.json_data.annotation_results[index].logo_recognition_annotations
             }
             return []
         },
 
-        indexed_object_tracks: function () {
+        indexed_logo_tracks: function () {
             `
-            Create a clean list of object tracking data with realisied nullable fields 
+            Create a clean list of logo tracking data with realisied nullable fields 
             and scaled bounding boxes ready to be drawn by the canvas
             `
 
             const indexed_tracks = []
 
-            if (!this.object_tracks)
+            if (!this.logo_tracks)
                 return []
 
-            this.object_tracks.forEach(element => {
-                if (element.confidence > this.confidence_threshold)
-                    indexed_tracks.push(new Object_Track(element, this.video_info.height, this.video_info.width))
+            this.logo_tracks.forEach(element => {
+                if (element.tracks[0].confidence > this.confidence_threshold)
+                    indexed_tracks.push(new Logo_Detected(element, this.video_info.height, this.video_info.width))
             })
 
             return indexed_tracks
@@ -143,28 +60,28 @@ Vue.component('object-tracking-viz', {
             `
             const segments = {}
 
-            this.indexed_object_tracks.forEach(object_tracks => {
+            // this.indexed_logo_tracks.forEach(object_tracks => {
 
-                if (!(object_tracks.name in segments))
-                    segments[object_tracks.name] = {'segments':[], 'count':0}
+            //     if (!(object_tracks.name in segments))
+            //         segments[object_tracks.name] = { 'segments': [], 'count': 0 }
 
-                segments[object_tracks.name].count++
+            //     segments[object_tracks.name].count++
 
-                var added = false
+            //     var added = false
 
-                for (let index = 0; index < segments[object_tracks.name].length; index++) {
-                    
-                    const segment = segments[object_tracks.name].segments[index]
-                    if (object_tracks.start_time < segment[1]) {
-                        segments[object_tracks.name].segments[index][1] = Math.max(segments[object_tracks.name].segments[index][1], object_tracks.end_time)
-                        added = true
-                        break
-                    }
-                }
+            //     for (let index = 0; index < segments[object_tracks.name].length; index++) {
 
-                if (!added)
-                    segments[object_tracks.name].segments.push([object_tracks.start_time, object_tracks.end_time])
-            })
+            //         const segment = segments[object_tracks.name].segments[index]
+            //         if (object_tracks.start_time < segment[1]) {
+            //             segments[object_tracks.name].segments[index][1] = Math.max(segments[object_tracks.name].segments[index][1], object_tracks.end_time)
+            //             added = true
+            //             break
+            //         }
+            //     }
+
+            //     if (!added)
+            //         segments[object_tracks.name].segments.push([object_tracks.start_time, object_tracks.end_time])
+            // })
 
             return segments
         }
@@ -177,7 +94,7 @@ Vue.component('object-tracking-viz', {
             }
         },
         segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data[0] -0.5 })
+            this.$emit('segment-clicked', { seconds: segment_data[0] - 0.5 })
         }
     },
     template: `
@@ -189,7 +106,7 @@ Vue.component('object-tracking-viz', {
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
 
-        <div class="data-warning" v-if="object_tracks.length == 0"> No object tracking data in JSON</div>
+        <div class="data-warning" v-if="logo_tracks.length == 0"> No logo detection data in JSON</div>
 
         <transition-group name="segments" tag="div">
             
@@ -216,12 +133,12 @@ Vue.component('object-tracking-viz', {
 
         this.interval_timer = setInterval(function () {
             console.log('running')
-            const object_tracks = component.indexed_object_tracks
-            
+            const object_tracks = component.indexed_logo_tracks
+
             draw_bounding_boxes(object_tracks, ctx)
         }, 1000 / 30)
     },
-    beforeDestroy:function(){
+    beforeDestroy: function () {
         console.log('destroying component')
         clearInterval(this.interval_timer)
         this.ctx.clearRect(0, 0, 800, 500)
@@ -230,27 +147,34 @@ Vue.component('object-tracking-viz', {
 
 
 
+class Logo_Frame {
 
-class Object_Track {
     constructor(json_data, video_height, video_width) {
-        this.name = json_data.entity.description
+
+        this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
+
+        this.box = {
+            'x': (json_data.normalized_bounding_box.left || 0) * video_width,
+            'y': (json_data.normalized_bounding_box.top || 0) * video_height,
+            'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
+            'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
+        }
+    }
+}
+
+
+
+class Logo_Track {
+    constructor(json_data, video_height, video_width) {
+
         this.start_time = nullable_time_offset_to_seconds(json_data.segment.start_time_offset)
         this.end_time = nullable_time_offset_to_seconds(json_data.segment.end_time_offset)
         this.confidence = json_data.confidence
 
         this.frames = []
 
-        json_data.frames.forEach(frame => {
-            const new_frame = {
-                'box': {
-                    'x': (frame.normalized_bounding_box.left || 0) * video_width,
-                    'y': (frame.normalized_bounding_box.top || 0) * video_height,
-                    'width': ((frame.normalized_bounding_box.right || 0) - (frame.normalized_bounding_box.left || 0)) * video_width,
-                    'height': ((frame.normalized_bounding_box.bottom || 0) - (frame.normalized_bounding_box.top || 0)) * video_height
-                },
-                'time_offset': nullable_time_offset_to_seconds(frame.time_offset)
-            }
-            this.frames.push(new_frame)
+        json_data.timestamped_objects.forEach(frame => {
+            this.frames.push(new Logo_Frame(frame, video_height, video_width))
         })
     }
 
@@ -305,5 +229,38 @@ class Object_Track {
             return this.most_recent_interpolated_bounding_box(seconds)
         else
             return this.most_recent_real_bounding_box(seconds)
+    }
+}
+
+
+class Logo_Detected {
+    constructor(json_data, video_height, video_width) {
+
+        this.name = json_data.entity.description
+        this.id = json_data.entity.entity_id
+
+        this.tracks = []
+
+        json_data.tracks.forEach(track => {
+            this.tracks.push(new Logo_Track(track, video_height, video_width))
+        })
+    }
+
+    has_frames_for_time(seconds) {
+
+        for (let index = 0; index < this.tracks.length; index++) {
+            if (this.tracks[index].has_frames_for_time(seconds))
+                return true
+        }
+        return false
+    }
+
+    current_bounding_box(seconds, interpolate = true) {
+
+        for (let index = 0; index < this.tracks.length; index++) {
+            if (this.tracks[index].has_frames_for_time(seconds))
+                return this.tracks[index].current_bounding_box(seconds, interpolate)
+        }
+        return null
     }
 }

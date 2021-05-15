@@ -6,7 +6,7 @@ function draw_bounding_boxes(object_tracks, ctx) {
     object_tracks.forEach(tracked_object => {
 
         if (tracked_object.has_frames_for_time(current_time)) {
-            draw_bounding_box(tracked_object.current_bounding_box(current_time),tracked_object.name, ctx)
+            draw_bounding_box(tracked_object.current_bounding_box(current_time), tracked_object.name, ctx)
         }
 
     })

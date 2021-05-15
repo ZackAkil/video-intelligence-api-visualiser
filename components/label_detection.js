@@ -23,7 +23,7 @@ Vue.component('label-detection-viz', {
     props: ['json_data', 'video_info'],
     data: function () {
         return {
-            confidence_threshold: 0.5,
+            confidence_threshold: 0.0,
             interval_timer: null,
             current_time: 0
         }

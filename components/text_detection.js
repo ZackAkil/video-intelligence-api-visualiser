@@ -219,23 +219,6 @@ class Text_Frame {
             this.poly.push({ x: vertex.x * video_width, y: vertex.y * video_height })
         })
 
-        // this.box = {
-        //     'x': (json_data.normalized_bounding_box.left || 0) * video_width,
-        //     'y': (json_data.normalized_bounding_box.top || 0) * video_height,
-        //     'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
-        //     'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
-        // }
-
-        // this.start_time = nullable_time_offset_to_seconds(json_data.segment.start_time_offset)
-        // this.end_time = nullable_time_offset_to_seconds(json_data.segment.end_time_offset)
-        // this.confidence = json_data.confidence
-
-        // this.frames = []
-
-        // json_data.frames.forEach(frame => {
-        //     this.frames.push(new )
-        // })
-
     }
 }
 
@@ -278,20 +261,23 @@ class Text_Segment {
             if (this.frames[index].time_offset > seconds) {
                 if (index > 0) {
                     if ((index == 1) || (index == this.frames.length - 1))
-                        return this.frames[index - 1].box
+                        return this.frames[index - 1].poly
 
                     // create a new interpolated box 
-                    const start_box = this.frames[index - 1]
-                    const end_box = this.frames[index]
-                    const time_delt_ratio = (seconds - start_box.time_offset) / (end_box.time_offset - start_box.time_offset)
+                    const start_poly = this.frames[index - 1]
+                    const end_poly = this.frames[index]
+                    const time_delt_ratio = (seconds - start_poly.time_offset) / (end_poly.time_offset - start_poly.time_offset)
 
-                    const interpolated_box = {
-                        'x': start_box.box.x + (end_box.box.x - start_box.box.x) * time_delt_ratio,
-                        'y': start_box.box.y + (end_box.box.y - start_box.box.y) * time_delt_ratio,
-                        'width': start_box.box.width + (end_box.box.width - start_box.box.width) * time_delt_ratio,
-                        'height': start_box.box.height + (end_box.box.height - start_box.box.height) * time_delt_ratio
+                    const interpolated_poly = []
+
+                    for (let i = 0; i < 4; i++) {
+                        interpolated_poly.push({
+                            x: start_poly.poly[i].x + (end_poly.poly[i].x - start_poly.poly[i].x) * time_delt_ratio,
+                            y: start_poly.poly[i].y + (end_poly.poly[i].y - start_poly.poly[i].y) * time_delt_ratio
+                        })
                     }
-                    return interpolated_box
+
+                    return interpolated_poly
 
                 } else
                     return null
@@ -300,7 +286,7 @@ class Text_Segment {
         return null
     }
 
-    current_bounding_box(seconds, interpolate = false) {
+    current_bounding_box(seconds, interpolate = true) {
 
         if (interpolate)
             return this.most_recent_interpolated_poly(seconds)
@@ -339,7 +325,7 @@ class Text_Detection {
     current_bounding_box(seconds, interpolate = false) {
 
         for (let index = 0; index < this.segments.length; index++) {
-            if(this.segments[index].has_frames_for_time(seconds))
+            if (this.segments[index].has_frames_for_time(seconds))
                 return this.segments[index].current_bounding_box(seconds)
         }
 

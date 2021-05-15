@@ -16,7 +16,7 @@ Vue.component('face-detection-viz', {
             confidence_threshold: 0.5,
             interval_timer: null,
             ctx: null,
-            frame_rate: 15
+            frame_rate: 30
         }
     },
     computed: {

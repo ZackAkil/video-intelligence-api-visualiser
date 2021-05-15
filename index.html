@@ -143,6 +143,8 @@
                 v-on:click="current_view = 'shot_detection'">Shot Detection</div>
             <div v-bind:class="{selected:current_view == 'speech_transcription'}"
                 v-on:click="current_view = 'speech_transcription'">Speech Transcription</div>
+            <div v-bind:class="{selected:current_view == 'person_detection'}"
+                v-on:click="current_view = 'person_detection'">Person Detection</div>
         </div>
 
 
@@ -156,8 +158,15 @@
         <shot-detection-viz v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:shot-clicked="jump_video"></shot-detection-viz>
 
-        <speech-transcription-viz v-if="current_view == 'speech_transcription'" id="speech_transcription" v-bind:json_data="json_data"
-            v-bind:video_info="video_info" v-on:word-clicked="jump_video"></speech-transcription-viz>
+        <speech-transcription-viz v-if="current_view == 'speech_transcription'" id="speech_transcription"
+            v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:word-clicked="jump_video">
+        </speech-transcription-viz>
+
+        <person-detection-viz v-if="current_view == 'person_detection'" id="person_detection"
+            v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
+        </person-detection-viz>
+
+
 
     </div>
 
@@ -165,6 +174,7 @@
     <script src="components/label_detection.js"></script>
     <script src="components/shot_detection.js"></script>
     <script src="components/speech_transcription.js"></script>
+    <script src="components/person_detection.js"></script>
 
     <script>
 
@@ -292,7 +302,7 @@
         video_input.addEventListener('change', load_video_dragged, false)
         json_input.addEventListener('change', load_json_dragged, false)
 
-        load_json_from_url("test_json.json")
+        load_json_from_url("bakers1621080019.5194054.json")
         load_video_from_url("test_video.mp4")
 
 

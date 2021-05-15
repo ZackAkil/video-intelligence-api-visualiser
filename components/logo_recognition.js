@@ -47,8 +47,9 @@ Vue.component('logo-recognition-viz', {
                 return []
 
             this.logo_tracks.forEach(element => {
-                if (element.tracks[0].confidence > this.confidence_threshold)
-                    indexed_tracks.push(new Logo_Detected(element, this.video_info.height, this.video_info.width))
+                const detected_logo = new Logo_Detected(element, this.video_info.height, this.video_info.width, this.confidence_threshold)
+                if (detected_logo.segments.length > 0)
+                    indexed_tracks.push(detected_logo)
             })
 
             return indexed_tracks
@@ -243,7 +244,7 @@ class Logo_Track {
 
 
 class Logo_Detected {
-    constructor(json_data, video_height, video_width) {
+    constructor(json_data, video_height, video_width, confidence_threshold) {
 
         this.name = json_data.entity.description
         this.id = json_data.entity.entity_id
@@ -251,7 +252,8 @@ class Logo_Detected {
         this.segments = []
 
         json_data.tracks.forEach(track => {
-            this.segments.push(new Logo_Track(track, video_height, video_width))
+            if (track.confidence > confidence_threshold)
+                this.segments.push(new Logo_Track(track, video_height, video_width))
         })
     }
 

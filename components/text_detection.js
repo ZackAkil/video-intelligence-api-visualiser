@@ -43,13 +43,13 @@ Vue.component('text-detection-viz', {
 
             const indexed_tracks = []
 
-            // if (!this.face_tracks)
-            //     return []
+            if (!this.text_tracks)
+                return []
 
-            // this.face_tracks.forEach(element => {
-            //     if (element.tracks[0].confidence > this.confidence_threshold)
-            //         indexed_tracks.push(new Text_Track(element, this.video_info.height, this.video_info.width))
-            // })
+            this.text_tracks.forEach(element => {
+                // if (element.tracks[0].confidence > this.confidence_threshold)
+                indexed_tracks.push(new Text_Detection(element, this.video_info.height, this.video_info.width))
+            })
 
             return indexed_tracks
         },
@@ -134,7 +134,7 @@ Vue.component('text-detection-viz', {
             console.log('running')
             const object_tracks = component.indexed_text_tracks
 
-            draw_bounding_boxes(object_tracks, ctx)
+            draw_bounding_polys(object_tracks, ctx)
 
         }, 1000 / this.frame_rate)
     },
@@ -146,6 +146,39 @@ Vue.component('text-detection-viz', {
 })
 
 
+function draw_bounding_polys(object_tracks, ctx) {
+    ctx.clearRect(0, 0, 800, 500)
+
+    const current_time = video.currentTime
+
+    object_tracks.forEach(tracked_object => {
+
+        if (tracked_object.has_frames_for_time(current_time)) {
+            draw_bounding_poly(tracked_object.current_bounding_box(current_time), tracked_object.text, ctx)
+        }
+
+    })
+}
+
+function draw_bounding_poly(poly, name = null, ctx) {
+    ctx.strokeStyle = "#4285F4"
+    ctx.beginPath()
+    ctx.lineWidth = 3
+
+    ctx.moveTo(poly[0].x, poly[0].y)
+    poly.forEach(point => {
+        ctx.lineTo(point.x, point.y)
+    })
+    ctx.lineTo(poly[0].x, poly[0].y)
+    ctx.stroke()
+
+    // if (name) {
+    //     ctx.fillStyle = "#4285F4"
+    //     ctx.fillRect(box.x, box.y, name.length * 13, 32)
+    //     ctx.fillStyle = "#ffffff"
+    //     ctx.fillText(name, box.x + 5, box.y + 22)
+    // }
+}
 
 
 
@@ -175,34 +208,63 @@ Vue.component('text-detection-viz', {
 //     }
 // }
 
-
-
-class Text_Track {
+class Text_Frame {
     constructor(json_data, video_height, video_width) {
-        // const track = json_data.tracks[0]
-        // this.start_time = nullable_time_offset_to_seconds(track.segment.start_time_offset)
-        // this.end_time = nullable_time_offset_to_seconds(track.segment.end_time_offset)
-        // this.confidence = track.confidence
-        // this.thumbnail = json_data.thumbnail
+
+        this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
+
+        this.poly = []
+
+        json_data.rotated_bounding_box.vertices.forEach(vertex => {
+            this.poly.push({ x: vertex.x * video_width, y: vertex.y * video_height })
+        })
+
+        // this.box = {
+        //     'x': (json_data.normalized_bounding_box.left || 0) * video_width,
+        //     'y': (json_data.normalized_bounding_box.top || 0) * video_height,
+        //     'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
+        //     'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
+        // }
+
+        // this.start_time = nullable_time_offset_to_seconds(json_data.segment.start_time_offset)
+        // this.end_time = nullable_time_offset_to_seconds(json_data.segment.end_time_offset)
+        // this.confidence = json_data.confidence
 
         // this.frames = []
 
-        // track.timestamped_objects.forEach(frame => {
-        //     const new_frame = new Face_Frame(frame, video_height, video_width)
-        //     this.frames.push(new_frame)
+        // json_data.frames.forEach(frame => {
+        //     this.frames.push(new )
         // })
+
+    }
+}
+
+class Text_Segment {
+    constructor(json_data, video_height, video_width) {
+
+        this.start_time = nullable_time_offset_to_seconds(json_data.segment.start_time_offset)
+        this.end_time = nullable_time_offset_to_seconds(json_data.segment.end_time_offset)
+        this.confidence = json_data.confidence
+
+        this.frames = []
+
+        json_data.frames.forEach(frame => {
+            this.frames.push(new Text_Frame(frame, video_height, video_width))
+        })
+
     }
 
     has_frames_for_time(seconds) {
         return ((this.start_time <= seconds) && (this.end_time >= seconds))
     }
 
-    most_recent_real_bounding_box(seconds) {
+
+    most_recent_real_poly(seconds) {
 
         for (let index = 0; index < this.frames.length; index++) {
             if (this.frames[index].time_offset > seconds) {
                 if (index > 0)
-                    return this.frames[index - 1].box
+                    return this.frames[index - 1].poly
                 else
                     return null
             }
@@ -210,7 +272,7 @@ class Text_Track {
         return null
     }
 
-    most_recent_interpolated_bounding_box(seconds) {
+    most_recent_interpolated_poly(seconds) {
 
         for (let index = 0; index < this.frames.length; index++) {
             if (this.frames[index].time_offset > seconds) {
@@ -238,11 +300,50 @@ class Text_Track {
         return null
     }
 
-    current_bounding_box(seconds, interpolate = true) {
+    current_bounding_box(seconds, interpolate = false) {
 
         if (interpolate)
-            return this.most_recent_interpolated_bounding_box(seconds)
+            return this.most_recent_interpolated_poly(seconds)
         else
-            return this.most_recent_real_bounding_box(seconds)
+            return this.most_recent_real_poly(seconds)
     }
+
+}
+
+
+
+class Text_Detection {
+    constructor(json_data, video_height, video_width) {
+
+        this.text = json_data.text
+
+        this.segments = []
+
+        json_data.segments.forEach(segment => {
+            const new_segemnt = new Text_Segment(segment, video_height, video_width)
+            this.segments.push(new_segemnt)
+        })
+    }
+
+    has_frames_for_time(seconds) {
+
+        for (let index = 0; index < this.segments.length; index++) {
+            if (this.segments[index].has_frames_for_time(seconds))
+                return true
+        }
+        return false
+    }
+
+
+
+    current_bounding_box(seconds, interpolate = false) {
+
+        for (let index = 0; index < this.segments.length; index++) {
+            if(this.segments[index].has_frames_for_time(seconds))
+                return this.segments[index].current_bounding_box(seconds)
+        }
+
+        return null
+    }
+
 }

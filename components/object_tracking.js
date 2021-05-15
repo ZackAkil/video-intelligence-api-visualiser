@@ -185,7 +185,7 @@ Vue.component('object-tracking-viz', {
 
         <div class="confidence">
             <span>Confidence threshold</span>
-            <input type="range" min="0.5" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
+            <input type="range" min="0.0" max="1" value="0.5" step="0.01" v-model="confidence_threshold">
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
 

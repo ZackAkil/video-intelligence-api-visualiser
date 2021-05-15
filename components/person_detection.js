@@ -211,7 +211,8 @@ Vue.component('person-detection-viz', {
             console.log('running')
             const object_tracks = component.indexed_person_tracks
 
-            draw_bounding_boxes(object_tracks, ctx)
+            // draw_bounding_boxes(object_tracks, ctx)
+            draw_person_bounding_boxes(object_tracks, ctx)
         }, 1000 / 30)
     },
     beforeDestroy: function () {
@@ -222,17 +223,58 @@ Vue.component('person-detection-viz', {
 })
 
 
+function draw_person_bounding_boxes(object_tracks, ctx) {
+    ctx.clearRect(0, 0, 800, 500)
+
+    const current_time = video.currentTime
+
+    object_tracks.forEach(tracked_object => {
+
+        if (tracked_object.has_frames_for_time(current_time)) {
+            draw_person_bounding_box(tracked_object.current_bounding_box(current_time), ctx)
+            draw_person_landmarks(tracked_object.current_person_landmarks(current_time), ctx)
+        }
+
+    })
+}
+
+const landmark_point_width = 8
+const landmark_point_half_width = landmark_point_width / 2
+
+function draw_person_landmarks(landmarks, ctx) {
+    ctx.fillStyle = "#DB4437"
+    landmarks.forEach(point => {
+        ctx.fillRect(point.x - landmark_point_half_width,
+            point.y - landmark_point_half_width,
+            landmark_point_width, landmark_point_width)
+    })
+}
+
+function draw_person_bounding_box(box, ctx) {
+    ctx.strokeStyle = "#4285F4"
+    ctx.beginPath()
+    ctx.lineWidth = 3
+    ctx.rect(box.x, box.y, box.width, box.height)
+    ctx.stroke()
+}
 
 
 class Person_Frame {
     constructor(json_data, video_height, video_width) {
         this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
+
         this.box = {
             'x': (json_data.normalized_bounding_box.left || 0) * video_width,
             'y': (json_data.normalized_bounding_box.top || 0) * video_height,
             'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
             'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
         }
+
+        this.landmarks = []
+        if (json_data.landmarks)
+            json_data.landmarks.forEach(landmark => {
+                this.landmarks.push({ 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height })
+            })
     }
 }
 
@@ -262,6 +304,20 @@ class Person_Track {
             if (this.frames[index].time_offset > seconds) {
                 if (index > 0)
                     return this.frames[index - 1].box
+                else
+                    return null
+            }
+        }
+        return null
+    }
+
+
+    most_recent_real_landmarks(seconds) {
+
+        for (let index = 0; index < this.frames.length; index++) {
+            if (this.frames[index].time_offset > seconds) {
+                if (index > 0)
+                    return this.frames[index - 1].landmarks
                 else
                     return null
             }
@@ -303,5 +359,13 @@ class Person_Track {
             return this.most_recent_interpolated_bounding_box(seconds)
         else
             return this.most_recent_real_bounding_box(seconds)
+    }
+
+    current_person_landmarks(seconds, interpolate = false) {
+        if (interpolate)
+            return this.most_recent_interpolated_landmarks(seconds)
+        else
+            return this.most_recent_real_landmarks(seconds)
+
     }
 }

@@ -4,52 +4,51 @@ style.innerHTML = `
 
 
 
-
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
 
 
 // define component
-Vue.component('person-detection-viz', {
+Vue.component('face-detection-viz', {
     props: ['json_data', 'video_info'],
     data: function () {
         return {
             confidence_threshold: 0.5,
             interval_timer: null,
             ctx: null,
-            frame_rate: 30
+            frame_rate: 15
         }
     },
     computed: {
-        person_tracks: function () {
+        face_tracks: function () {
             `
-            Extract just the person tracking data from json
+            Extract just the face detection data from json
             `
 
             if (!this.json_data.annotation_results)
                 return []
 
             for (let index = 0; index < this.json_data.annotation_results.length; index++) {
-                if ('person_detection_annotations' in this.json_data.annotation_results[index])
-                    return this.json_data.annotation_results[index].person_detection_annotations
+                if ('face_detection_annotations' in this.json_data.annotation_results[index])
+                    return this.json_data.annotation_results[index].face_detection_annotations
             }
             return []
         },
 
-        indexed_person_tracks: function () {
+        indexed_face_tracks: function () {
             `
-            Create a clean list of person tracking data with realisied nullable fields 
+            Create a clean list of face detection data with realisied nullable fields 
             and scaled bounding boxes ready to be drawn by the canvas
             `
 
             const indexed_tracks = []
 
-            if (!this.person_tracks)
+            if (!this.face_tracks)
                 return []
 
-            this.person_tracks.forEach(element => {
+            this.face_tracks.forEach(element => {
                 if (element.tracks[0].confidence > this.confidence_threshold)
-                    indexed_tracks.push(new Person_Track(element, this.video_info.height, this.video_info.width))
+                    indexed_tracks.push(new Face_Track(element, this.video_info.height, this.video_info.width))
             })
 
             return indexed_tracks
@@ -61,25 +60,25 @@ Vue.component('person-detection-viz', {
             `
             const segments = { 'person': { 'segments': [], 'count': 0 } }
 
-            this.indexed_person_tracks.forEach(object_tracks => {
+            // this.indexed_person_tracks.forEach(object_tracks => {
 
-                segments['person'].count++
+            //     segments['person'].count++
 
-                var added = false
+            //     var added = false
 
-                for (let index = 0; index < segments['person'].length; index++) {
+            //     for (let index = 0; index < segments['person'].length; index++) {
 
-                    const segment = segments['person'].segments[index]
-                    if (object_tracks.start_time < segment[1]) {
-                        segments['person'].segments[index][1] = Math.max(segments['person'].segments[index][1], object_tracks.end_time)
-                        added = true
-                        break
-                    }
-                }
+            //         const segment = segments['person'].segments[index]
+            //         if (object_tracks.start_time < segment[1]) {
+            //             segments['person'].segments[index][1] = Math.max(segments['person'].segments[index][1], object_tracks.end_time)
+            //             added = true
+            //             break
+            //         }
+            //     }
 
-                if (!added)
-                    segments['person'].segments.push([object_tracks.start_time, object_tracks.end_time])
-            })
+            //     if (!added)
+            //         segments['person'].segments.push([object_tracks.start_time, object_tracks.end_time])
+            // })
 
             return segments
         }
@@ -104,7 +103,7 @@ Vue.component('person-detection-viz', {
             <span class="confidence-value">{{confidence_threshold}}</span>
         </div>
 
-        <div class="data-warning" v-if="person_tracks.length == 0"> No person detection data in JSON</div>
+        <div class="data-warning" v-if="face_tracks.length == 0"> No face detection data in JSON</div>
 
         <transition-group name="segments" tag="div">
             
@@ -131,10 +130,10 @@ Vue.component('person-detection-viz', {
 
         this.interval_timer = setInterval(function () {
             console.log('running')
-            const object_tracks = component.indexed_person_tracks
+            const object_tracks = component.indexed_face_tracks
 
             // draw_bounding_boxes(object_tracks, ctx)
-            draw_person_bounding_boxes(object_tracks, ctx)
+
         }, 1000 / this.frame_rate)
     },
     beforeDestroy: function () {
@@ -145,84 +144,49 @@ Vue.component('person-detection-viz', {
 })
 
 
-function draw_person_bounding_boxes(object_tracks, ctx) {
-    ctx.clearRect(0, 0, 800, 500)
-
-    const current_time = video.currentTime
-
-    object_tracks.forEach(tracked_object => {
-
-        if (tracked_object.has_frames_for_time(current_time)) {
-            draw_person_bounding_box(tracked_object.current_bounding_box(current_time), ctx)
-            draw_person_landmarks(tracked_object.current_person_landmarks(current_time), ctx)
-        }
-
-    })
-}
-
-const landmark_point_width = 8
-const landmark_point_half_width = landmark_point_width / 2
-
-function draw_person_landmarks(landmarks, ctx) {
-    ctx.fillStyle = "#DB4437"
-
-    for (const [key, point] of Object.entries(landmarks)) {
-        if (point) {
-            ctx.fillRect(point.x - landmark_point_half_width,
-                point.y - landmark_point_half_width,
-                landmark_point_width, landmark_point_width)
-        }
-    }
-}
-
-function draw_person_bounding_box(box, ctx) {
-    ctx.strokeStyle = "#4285F4"
-    ctx.beginPath()
-    ctx.lineWidth = 3
-    ctx.rect(box.x, box.y, box.width, box.height)
-    ctx.stroke()
-}
 
 
-class Person_Frame {
+
+
+// class Person_Frame {
+//     constructor(json_data, video_height, video_width) {
+//         this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
+
+//         this.box = {
+//             'x': (json_data.normalized_bounding_box.left || 0) * video_width,
+//             'y': (json_data.normalized_bounding_box.top || 0) * video_height,
+//             'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
+//             'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
+//         }
+
+//         this.landmarks = {
+//             nose: null, left_eye: null, right_eye: null, left_ear: null, right_ear: null, left_shoulder: null,
+//             right_shoulder: null, left_elbow: null, right_elbow: null, left_wrist: null, right_wrist: null,
+//             left_hip: null, right_hip: null, left_knee: null, right_knee: null, left_ankle: null, right_ankle: null
+//         }
+
+//         if (json_data.landmarks)
+//             json_data.landmarks.forEach(landmark => {
+//                 this.landmarks[landmark.name] = { 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height }
+//             })
+//     }
+// }
+
+
+
+class Face_Track {
     constructor(json_data, video_height, video_width) {
-        this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
+        // const track = json_data.tracks[0]
+        // this.start_time = nullable_time_offset_to_seconds(track.segment.start_time_offset)
+        // this.end_time = nullable_time_offset_to_seconds(track.segment.end_time_offset)
+        // this.confidence = json_data.confidence
 
-        this.box = {
-            'x': (json_data.normalized_bounding_box.left || 0) * video_width,
-            'y': (json_data.normalized_bounding_box.top || 0) * video_height,
-            'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
-            'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
-        }
+        // this.frames = []
 
-        this.landmarks = {
-            nose: null, left_eye: null, right_eye: null, left_ear: null, right_ear: null, left_shoulder: null,
-            right_shoulder: null, left_elbow: null, right_elbow: null, left_wrist: null, right_wrist: null,
-            left_hip: null, right_hip: null, left_knee: null, right_knee: null, left_ankle: null, right_ankle: null
-        }
-
-        if (json_data.landmarks)
-            json_data.landmarks.forEach(landmark => {
-                this.landmarks[landmark.name] = { 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height }
-            })
-    }
-}
-
-
-
-class Person_Track {
-    constructor(json_data, video_height, video_width) {
-        const track = json_data.tracks[0]
-        this.start_time = nullable_time_offset_to_seconds(track.segment.start_time_offset)
-        this.end_time = nullable_time_offset_to_seconds(track.segment.end_time_offset)
-        this.confidence = json_data.confidence
-
-        this.frames = []
-
-        track.timestamped_objects.forEach(frame => {
-            const new_frame = new Person_Frame(frame, video_height, video_width)
-            this.frames.push(new_frame)
-        })
+        // track.timestamped_objects.forEach(frame => {
+        //     const new_frame = new Person_Frame(frame, video_height, video_width)
+        //     this.frames.push(new_frame)
+        // })
     }
 
     has_frames_for_time(seconds) {

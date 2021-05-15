@@ -145,6 +145,8 @@
                 v-on:click="current_view = 'speech_transcription'">Speech Transcription</div>
             <div v-bind:class="{selected:current_view == 'person_detection'}"
                 v-on:click="current_view = 'person_detection'">Person Detection</div>
+            <div v-bind:class="{selected:current_view == 'face_detection'}"
+                v-on:click="current_view = 'face_detection'">Face Detection</div>
         </div>
 
 
@@ -166,6 +168,10 @@
             v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </person-detection-viz>
 
+        <face-detection-viz v-if="current_view == 'face_detection'" id="face_detection" v-bind:json_data="json_data"
+            v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
+        </face-detection-viz>
+
 
 
     </div>
@@ -175,6 +181,7 @@
     <script src="components/shot_detection.js"></script>
     <script src="components/speech_transcription.js"></script>
     <script src="components/person_detection.js"></script>
+    <script src="components/face_detection.js"></script>
 
     <script>
 

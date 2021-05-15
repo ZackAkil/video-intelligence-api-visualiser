@@ -321,7 +321,6 @@ class Text_Detection {
     }
 
 
-
     current_bounding_box(seconds, interpolate = false) {
 
         for (let index = 0; index < this.segments.length; index++) {

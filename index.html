@@ -151,6 +151,8 @@
                 v-on:click="current_view = 'logo_recognition'">Logo Recognition</div>
             <div v-bind:class="{selected:current_view == 'text_detection'}"
                 v-on:click="current_view = 'text_detection'">Text Detection</div>
+            <div v-bind:class="{selected:current_view == 'explicit_content_detection'}"
+                v-on:click="current_view = 'explicit_content_detection'">Explicit Content Detection</div>
         </div>
 
 
@@ -184,14 +186,15 @@
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </text-detection-viz>
 
-
-
-
-
-
+        <explicit-content-detection-viz v-if="current_view == 'explicit_content_detection'"
+            id="explicit_content_detection" v-bind:json_data="json_data" v-bind:video_info="video_info"
+            v-on:shot-clicked="jump_video">
+        </explicit-content-detection-viz>
 
     </div>
+
     <script src="utils/utils.js"></script>
+
     <script src="components/object_tracking.js"></script>
     <script src="components/label_detection.js"></script>
     <script src="components/shot_detection.js"></script>
@@ -200,6 +203,7 @@
     <script src="components/face_detection.js"></script>
     <script src="components/logo_recognition.js"></script>
     <script src="components/text_detection.js"></script>
+    <script src="components/explicit_content_detection.js"></script>
 
     <script>
 
@@ -303,13 +307,6 @@
         function drag_enter(ev) {
             ev.preventDefault()
         }
-
-        // function drag_leave(ev) {
-        //     ev.preventDefault()
-        //     console.log('leave', ev)
-        // }
-
-
 
         function drop_video(ev) {
             ev.preventDefault()

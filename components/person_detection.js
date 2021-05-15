@@ -95,7 +95,8 @@ Vue.component('person-detection-viz', {
         return {
             confidence_threshold: 0.5,
             interval_timer: null,
-            ctx: null
+            ctx: null,
+            frame_rate: 30
         }
     },
     computed: {
@@ -213,7 +214,7 @@ Vue.component('person-detection-viz', {
 
             // draw_bounding_boxes(object_tracks, ctx)
             draw_person_bounding_boxes(object_tracks, ctx)
-        }, 1000 / 30)
+        }, 1000 / this.frame_rate)
     },
     beforeDestroy: function () {
         console.log('destroying component')
@@ -243,11 +244,14 @@ const landmark_point_half_width = landmark_point_width / 2
 
 function draw_person_landmarks(landmarks, ctx) {
     ctx.fillStyle = "#DB4437"
-    landmarks.forEach(point => {
-        ctx.fillRect(point.x - landmark_point_half_width,
-            point.y - landmark_point_half_width,
-            landmark_point_width, landmark_point_width)
-    })
+
+    for (const [key, point] of Object.entries(landmarks)) {
+        if (point) {
+            ctx.fillRect(point.x - landmark_point_half_width,
+                point.y - landmark_point_half_width,
+                landmark_point_width, landmark_point_width)
+        }
+    }
 }
 
 function draw_person_bounding_box(box, ctx) {
@@ -270,13 +274,19 @@ class Person_Frame {
             'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
         }
 
-        this.landmarks = []
+        this.landmarks = {
+            nose: null, left_eye: null, right_eye: null, left_ear: null, right_ear: null, left_shoulder: null,
+            right_shoulder: null, left_elbow: null, right_elbow: null, left_wrist: null, right_wrist: null,
+            left_hip: null, right_hip: null, left_knee: null, right_knee: null, left_ankle: null, right_ankle: null
+        }
+
         if (json_data.landmarks)
             json_data.landmarks.forEach(landmark => {
-                this.landmarks.push({ 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height })
+                this.landmarks[landmark.name] = { 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height }
             })
     }
 }
+
 
 
 class Person_Track {
@@ -325,6 +335,51 @@ class Person_Track {
         return null
     }
 
+    most_recent_interpolated_landmarks(seconds) {
+
+        for (let index = 0; index < this.frames.length; index++) {
+            if (this.frames[index].time_offset > seconds) {
+                if (index > 0) {
+                    if ((index == 1) || (index == this.frames.length - 1))
+                        return this.frames[index - 1].box
+
+                    // create a new interpolated box between the 
+                    const start_box = this.frames[index - 1]
+                    const end_box = this.frames[index]
+                    const time_delt_ratio = (seconds - start_box.time_offset) / (end_box.time_offset - start_box.time_offset)
+
+                    const interpolated_landmarks = {}
+
+                    for (const [key, start_point] of Object.entries(start_box.landmarks)) {
+
+                        const end_point = end_box.landmarks[key]
+
+                        if (start_point && end_point) {
+                            interpolated_landmarks[key] = {
+                                'x': start_point.x + (end_point.x - start_point.x) * time_delt_ratio,
+                                'y': start_point.y + (end_point.y - start_point.y) * time_delt_ratio
+                            }
+                        }
+                    }
+
+                    return interpolated_landmarks
+
+
+                    // const interpolated_box = {
+                    //     'x': start_box.box.x + (end_box.box.x - start_box.box.x) * time_delt_ratio,
+                    //     'y': start_box.box.y + (end_box.box.y - start_box.box.y) * time_delt_ratio,
+                    //     'width': start_box.box.width + (end_box.box.width - start_box.box.width) * time_delt_ratio,
+                    //     'height': start_box.box.height + (end_box.box.height - start_box.box.height) * time_delt_ratio
+                    // }
+                    // return interpolated_box
+
+                } else
+                    return null
+            }
+        }
+        return null
+    }
+
     most_recent_interpolated_bounding_box(seconds) {
 
         for (let index = 0; index < this.frames.length; index++) {
@@ -361,7 +416,7 @@ class Person_Track {
             return this.most_recent_real_bounding_box(seconds)
     }
 
-    current_person_landmarks(seconds, interpolate = false) {
+    current_person_landmarks(seconds, interpolate = true) {
         if (interpolate)
             return this.most_recent_interpolated_landmarks(seconds)
         else

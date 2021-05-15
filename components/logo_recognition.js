@@ -60,28 +60,37 @@ Vue.component('logo-recognition-viz', {
             `
             const segments = {}
 
-            // this.indexed_logo_tracks.forEach(object_tracks => {
+            this.indexed_logo_tracks.forEach(object_tracks => {
 
-            //     if (!(object_tracks.name in segments))
-            //         segments[object_tracks.name] = { 'segments': [], 'count': 0 }
+                if (!(object_tracks.name in segments))
+                    segments[object_tracks.name] = { 'segments': [], 'count': 0 }
 
-            //     segments[object_tracks.name].count++
 
-            //     var added = false
+                object_tracks.segments.forEach(logo_segemnt => {
 
-            //     for (let index = 0; index < segments[object_tracks.name].length; index++) {
 
-            //         const segment = segments[object_tracks.name].segments[index]
-            //         if (object_tracks.start_time < segment[1]) {
-            //             segments[object_tracks.name].segments[index][1] = Math.max(segments[object_tracks.name].segments[index][1], object_tracks.end_time)
-            //             added = true
-            //             break
-            //         }
-            //     }
+                    segments[object_tracks.name].count++
 
-            //     if (!added)
-            //         segments[object_tracks.name].segments.push([object_tracks.start_time, object_tracks.end_time])
-            // })
+                    var added = false
+
+                    for (let index = 0; index < segments[object_tracks.name].length; index++) {
+
+                        const segment = segments[object_tracks.name].segments[index]
+                        if (logo_segemnt.start_time < segment[1]) {
+                            segments[object_tracks.name].segments[index][1] = Math.max(segments[object_tracks.name].segments[index][1], logo_segemnt.end_time)
+                            added = true
+                            break
+                        }
+                    }
+
+                    if (!added)
+                        segments[object_tracks.name].segments.push([logo_segemnt.start_time, logo_segemnt.end_time])
+
+
+
+                })
+
+            })
 
             return segments
         }
@@ -239,17 +248,17 @@ class Logo_Detected {
         this.name = json_data.entity.description
         this.id = json_data.entity.entity_id
 
-        this.tracks = []
+        this.segments = []
 
         json_data.tracks.forEach(track => {
-            this.tracks.push(new Logo_Track(track, video_height, video_width))
+            this.segments.push(new Logo_Track(track, video_height, video_width))
         })
     }
 
     has_frames_for_time(seconds) {
 
-        for (let index = 0; index < this.tracks.length; index++) {
-            if (this.tracks[index].has_frames_for_time(seconds))
+        for (let index = 0; index < this.segments.length; index++) {
+            if (this.segments[index].has_frames_for_time(seconds))
                 return true
         }
         return false
@@ -257,9 +266,9 @@ class Logo_Detected {
 
     current_bounding_box(seconds, interpolate = true) {
 
-        for (let index = 0; index < this.tracks.length; index++) {
-            if (this.tracks[index].has_frames_for_time(seconds))
-                return this.tracks[index].current_bounding_box(seconds, interpolate)
+        for (let index = 0; index < this.segments.length; index++) {
+            if (this.segments[index].has_frames_for_time(seconds))
+                return this.segments[index].current_bounding_box(seconds, interpolate)
         }
         return null
     }

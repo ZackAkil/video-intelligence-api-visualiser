@@ -43,8 +43,6 @@ Vue.component('logo-recognition-viz', {
 
             const indexed_tracks = []
 
-            if (!this.logo_tracks)
-                return []
 
             this.logo_tracks.forEach(element => {
                 const detected_logo = new Logo_Detected(element, this.video_info.height, this.video_info.width, this.confidence_threshold)

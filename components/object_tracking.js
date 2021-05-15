@@ -126,9 +126,6 @@ Vue.component('object-tracking-viz', {
 
             const indexed_tracks = []
 
-            if (!this.object_tracks)
-                return []
-
             this.object_tracks.forEach(element => {
                 if (element.confidence > this.confidence_threshold)
                     indexed_tracks.push(new Object_Track(element, this.video_info.height, this.video_info.width))

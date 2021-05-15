@@ -44,9 +44,6 @@ Vue.component('person-detection-viz', {
 
             const indexed_tracks = []
 
-            if (!this.person_tracks)
-                return []
-
             this.person_tracks.forEach(element => {
                 if (element.tracks[0].confidence > this.confidence_threshold)
                     indexed_tracks.push(new Person_Track(element, this.video_info.height, this.video_info.width))

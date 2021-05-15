@@ -26,7 +26,7 @@ Vue.component('explicit-content-detection-viz', {
 
             for (let index = 0; index < this.json_data.annotation_results.length; index++) {
                 if ('explicit_annotation' in this.json_data.annotation_results[index])
-                    return this.json_data.annotation_results[index].explicit_annotation
+                    return this.json_data.annotation_results[index].explicit_annotation.frames
             }
             return []
         },
@@ -38,13 +38,10 @@ Vue.component('explicit-content-detection-viz', {
 
             const indexed_shots = []
 
-            if (this.explicit_frames_annotations) {
-
-                this.explicit_frames_annotations.frames.forEach(element => {
-                    const explicit_detection = new Explicit_Content_Detection(element)
-                    indexed_shots.push(explicit_detection)
-                })
-            }
+            this.explicit_frames_annotations.forEach(element => {
+                const explicit_detection = new Explicit_Content_Detection(element)
+                indexed_shots.push(explicit_detection)
+            })
 
             return indexed_shots
         },
@@ -66,7 +63,7 @@ Vue.component('explicit-content-detection-viz', {
     template: `
     <div calss="shot_detection-container">
 
-    <div class="data-warning" v-if="explicit_frames_annotations.length == 0"> No shot data in JSON</div>
+    <div class="data-warning" v-if="explicit_frames_annotations.length == 0"> No explicit content detection data in JSON</div>
 
     <div v-for="shot in indexed_explicit_frames_annotations" 
     v-on:click="shot_clicked(shot)"> {{shot.time_offset}} -> {{shot.explicit_liklyhood}}</div>

@@ -149,6 +149,8 @@
                 v-on:click="current_view = 'face_detection'">Face Detection</div>
             <div v-bind:class="{selected:current_view == 'logo_recognition'}"
                 v-on:click="current_view = 'logo_recognition'">Logo Recognition</div>
+            <div v-bind:class="{selected:current_view == 'text_detection'}"
+                v-on:click="current_view = 'text_detection'">Text Detection</div>
         </div>
 
 
@@ -178,7 +180,11 @@
             v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </logo-recognition-viz>
 
-        
+        <text-detection-viz v-if="current_view == 'text_detection'" id="text_detection" v-bind:json_data="json_data"
+            v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
+        </text-detection-viz>
+
+
 
 
 
@@ -193,6 +199,7 @@
     <script src="components/person_detection.js"></script>
     <script src="components/face_detection.js"></script>
     <script src="components/logo_recognition.js"></script>
+    <script src="components/text_detection.js"></script>
 
     <script>
 

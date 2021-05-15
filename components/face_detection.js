@@ -58,27 +58,27 @@ Vue.component('face-detection-viz', {
             ` 
             create the list of cronological time segments that represent just when objects are present on screen
             `
-            const segments = { 'person': { 'segments': [], 'count': 0 } }
+            const segments = { 'face': { 'segments': [], 'count': 0 } }
 
-            // this.indexed_person_tracks.forEach(object_tracks => {
+            this.indexed_face_tracks.forEach(object_tracks => {
 
-            //     segments['person'].count++
+                segments['face'].count++
 
-            //     var added = false
+                var added = false
 
-            //     for (let index = 0; index < segments['person'].length; index++) {
+                for (let index = 0; index < segments['face'].length; index++) {
 
-            //         const segment = segments['person'].segments[index]
-            //         if (object_tracks.start_time < segment[1]) {
-            //             segments['person'].segments[index][1] = Math.max(segments['person'].segments[index][1], object_tracks.end_time)
-            //             added = true
-            //             break
-            //         }
-            //     }
+                    const segment = segments['face'].segments[index]
+                    if (object_tracks.start_time < segment[1]) {
+                        segments['face'].segments[index][1] = Math.max(segments['face'].segments[index][1], object_tracks.end_time)
+                        added = true
+                        break
+                    }
+                }
 
-            //     if (!added)
-            //         segments['person'].segments.push([object_tracks.start_time, object_tracks.end_time])
-            // })
+                if (!added)
+                    segments['face'].segments.push([object_tracks.start_time, object_tracks.end_time])
+            })
 
             return segments
         }
@@ -91,7 +91,7 @@ Vue.component('face-detection-viz', {
             }
         },
         segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data[0] - 0.5 })
+            this.$emit('segment-clicked', { seconds: segment_data[0] })
         }
     },
     template: `
@@ -132,7 +132,7 @@ Vue.component('face-detection-viz', {
             console.log('running')
             const object_tracks = component.indexed_face_tracks
 
-            // draw_bounding_boxes(object_tracks, ctx)
+            draw_bounding_boxes(object_tracks, ctx)
 
         }, 1000 / this.frame_rate)
     },
@@ -148,45 +148,47 @@ Vue.component('face-detection-viz', {
 
 
 
-// class Person_Frame {
-//     constructor(json_data, video_height, video_width) {
-//         this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
+class Face_Frame {
+    constructor(json_data, video_height, video_width) {
 
-//         this.box = {
-//             'x': (json_data.normalized_bounding_box.left || 0) * video_width,
-//             'y': (json_data.normalized_bounding_box.top || 0) * video_height,
-//             'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
-//             'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
-//         }
+        this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
 
-//         this.landmarks = {
-//             nose: null, left_eye: null, right_eye: null, left_ear: null, right_ear: null, left_shoulder: null,
-//             right_shoulder: null, left_elbow: null, right_elbow: null, left_wrist: null, right_wrist: null,
-//             left_hip: null, right_hip: null, left_knee: null, right_knee: null, left_ankle: null, right_ankle: null
-//         }
+        this.box = {
+            'x': (json_data.normalized_bounding_box.left || 0) * video_width,
+            'y': (json_data.normalized_bounding_box.top || 0) * video_height,
+            'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
+            'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
+        }
 
-//         if (json_data.landmarks)
-//             json_data.landmarks.forEach(landmark => {
-//                 this.landmarks[landmark.name] = { 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height }
-//             })
-//     }
-// }
+        // this.landmarks = {
+        //     nose: null, left_eye: null, right_eye: null, left_ear: null, right_ear: null, left_shoulder: null,
+        //     right_shoulder: null, left_elbow: null, right_elbow: null, left_wrist: null, right_wrist: null,
+        //     left_hip: null, right_hip: null, left_knee: null, right_knee: null, left_ankle: null, right_ankle: null
+        // }
+
+        // if (json_data.landmarks)
+        //     json_data.landmarks.forEach(landmark => {
+        //         this.landmarks[landmark.name] = { 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height }
+        //     })
+    }
+}
 
 
 
 class Face_Track {
     constructor(json_data, video_height, video_width) {
-        // const track = json_data.tracks[0]
-        // this.start_time = nullable_time_offset_to_seconds(track.segment.start_time_offset)
-        // this.end_time = nullable_time_offset_to_seconds(track.segment.end_time_offset)
-        // this.confidence = json_data.confidence
+        const track = json_data.tracks[0]
+        this.start_time = nullable_time_offset_to_seconds(track.segment.start_time_offset)
+        this.end_time = nullable_time_offset_to_seconds(track.segment.end_time_offset)
+        this.confidence = track.confidence
+        this.thumbnail = json_data.thumbnail
 
-        // this.frames = []
+        this.frames = []
 
-        // track.timestamped_objects.forEach(frame => {
-        //     const new_frame = new Person_Frame(frame, video_height, video_width)
-        //     this.frames.push(new_frame)
-        // })
+        track.timestamped_objects.forEach(frame => {
+            const new_frame = new Face_Frame(frame, video_height, video_width)
+            this.frames.push(new_frame)
+        })
     }
 
     has_frames_for_time(seconds) {
@@ -206,65 +208,6 @@ class Face_Track {
         return null
     }
 
-
-    most_recent_real_landmarks(seconds) {
-
-        for (let index = 0; index < this.frames.length; index++) {
-            if (this.frames[index].time_offset > seconds) {
-                if (index > 0)
-                    return this.frames[index - 1].landmarks
-                else
-                    return null
-            }
-        }
-        return null
-    }
-
-    most_recent_interpolated_landmarks(seconds) {
-
-        for (let index = 0; index < this.frames.length; index++) {
-            if (this.frames[index].time_offset > seconds) {
-                if (index > 0) {
-                    if ((index == 1) || (index == this.frames.length - 1))
-                        return this.frames[index - 1].box
-
-                    // create a new interpolated box between the 
-                    const start_box = this.frames[index - 1]
-                    const end_box = this.frames[index]
-                    const time_delt_ratio = (seconds - start_box.time_offset) / (end_box.time_offset - start_box.time_offset)
-
-                    const interpolated_landmarks = {}
-
-                    for (const [key, start_point] of Object.entries(start_box.landmarks)) {
-
-                        const end_point = end_box.landmarks[key]
-
-                        if (start_point && end_point) {
-                            interpolated_landmarks[key] = {
-                                'x': start_point.x + (end_point.x - start_point.x) * time_delt_ratio,
-                                'y': start_point.y + (end_point.y - start_point.y) * time_delt_ratio
-                            }
-                        }
-                    }
-
-                    return interpolated_landmarks
-
-
-                    // const interpolated_box = {
-                    //     'x': start_box.box.x + (end_box.box.x - start_box.box.x) * time_delt_ratio,
-                    //     'y': start_box.box.y + (end_box.box.y - start_box.box.y) * time_delt_ratio,
-                    //     'width': start_box.box.width + (end_box.box.width - start_box.box.width) * time_delt_ratio,
-                    //     'height': start_box.box.height + (end_box.box.height - start_box.box.height) * time_delt_ratio
-                    // }
-                    // return interpolated_box
-
-                } else
-                    return null
-            }
-        }
-        return null
-    }
-
     most_recent_interpolated_bounding_box(seconds) {
 
         for (let index = 0; index < this.frames.length; index++) {
@@ -273,7 +216,7 @@ class Face_Track {
                     if ((index == 1) || (index == this.frames.length - 1))
                         return this.frames[index - 1].box
 
-                    // create a new interpolated box between the 
+                    // create a new interpolated box 
                     const start_box = this.frames[index - 1]
                     const end_box = this.frames[index]
                     const time_delt_ratio = (seconds - start_box.time_offset) / (end_box.time_offset - start_box.time_offset)
@@ -299,13 +242,5 @@ class Face_Track {
             return this.most_recent_interpolated_bounding_box(seconds)
         else
             return this.most_recent_real_bounding_box(seconds)
-    }
-
-    current_person_landmarks(seconds, interpolate = true) {
-        if (interpolate)
-            return this.most_recent_interpolated_landmarks(seconds)
-        else
-            return this.most_recent_real_landmarks(seconds)
-
     }
 }

@@ -92,7 +92,7 @@ Vue.component('person-detection-viz', {
             }
         },
         segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data[0] - 0.5 })
+            this.$emit('segment-clicked', { seconds: segment_data[0] })
         }
     },
     template: `

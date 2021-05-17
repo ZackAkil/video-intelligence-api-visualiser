@@ -107,6 +107,10 @@ Vue.component('text-detection-viz', {
 
         <div class="data-warning" v-if="text_tracks.length == 0"> No face detection data in JSON</div>
 
+        <div v-for="text in indexed_text_tracks">
+            {{text.text}}
+        </div>
+
         <transition-group name="segments" tag="div">
             
             <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
@@ -183,30 +187,6 @@ function draw_bounding_poly(poly, name = null, ctx) {
 
 
 
-// class Face_Frame {
-//     constructor(json_data, video_height, video_width) {
-
-//         this.time_offset = nullable_time_offset_to_seconds(json_data.time_offset)
-
-//         this.box = {
-//             'x': (json_data.normalized_bounding_box.left || 0) * video_width,
-//             'y': (json_data.normalized_bounding_box.top || 0) * video_height,
-//             'width': ((json_data.normalized_bounding_box.right || 0) - (json_data.normalized_bounding_box.left || 0)) * video_width,
-//             'height': ((json_data.normalized_bounding_box.bottom || 0) - (json_data.normalized_bounding_box.top || 0)) * video_height
-//         }
-
-//         // this.landmarks = {
-//         //     nose: null, left_eye: null, right_eye: null, left_ear: null, right_ear: null, left_shoulder: null,
-//         //     right_shoulder: null, left_elbow: null, right_elbow: null, left_wrist: null, right_wrist: null,
-//         //     left_hip: null, right_hip: null, left_knee: null, right_knee: null, left_ankle: null, right_ankle: null
-//         // }
-
-//         // if (json_data.landmarks)
-//         //     json_data.landmarks.forEach(landmark => {
-//         //         this.landmarks[landmark.name] = { 'x': landmark.point.x * video_width, 'y': landmark.point.y * video_height }
-//         //     })
-//     }
-// }
 
 class Text_Frame {
     constructor(json_data, video_height, video_width) {

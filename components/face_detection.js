@@ -2,10 +2,57 @@
 var style = document.createElement('style');
 style.innerHTML = `
 
+.face{
+    display: inline-block;
+    width: 231px;
+    margin: 10px;
+    text-align: left;
+    background-color: #f7f7f7;
+    padding: 10px;
+    cursor:pointer;
+}
 
+.face > img{
+    height: 85px;
+    margin: auto;
+    display: block;
+}
+
+.bar-chart{
+
+}
+
+.bar-chart > div{
+    background-color: #4285F4;
+    height:1em;
+}
 
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
+
+
+
+Vue.component('bar-chart', {
+    props: ['label', 'percent'],
+    computed: {
+        has_data: function () {
+            return this.detected_features.includes(this.data_id)
+        },
+        bar_style: function () {
+            return {
+                color: '#4285F4',
+                width: this.percent.toString() + '%'
+            }
+        },
+    },
+    template: `
+            <div class="bar-chart">
+                {{label}} - {{parseInt(percent)}}%
+                <div class="bar" v-bind:style="bar_style"> </div>
+            </div>
+            `
+})
+
 
 
 // define component
@@ -90,8 +137,8 @@ Vue.component('face-detection-viz', {
                 width: (((segment[1] - segment[0]) / this.video_info.length) * 100).toString() + '%'
             }
         },
-        segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data[0] })
+        segment_clicked: function (seconds) {
+            this.$emit('segment-clicked', { seconds: seconds })
         }
     },
     template: `
@@ -105,18 +152,31 @@ Vue.component('face-detection-viz', {
 
         <div class="data-warning" v-if="face_tracks.length == 0"> No face detection data in JSON</div>
 
-        <transition-group name="segments" tag="div">
-            
-            <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
+        <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
                 <div class="label">{{key}} ({{segments.count}})</div>
                 <div class="segment-timeline">
                     <div class="segment" v-for="segment in segments.segments" 
                                         v-bind:style="segment_style(segment)" 
-                                        v-on:click="segment_clicked(segment)"
+                                        v-on:click="segment_clicked(segment[0])"
                     ></div>
                 </div>
-            </div>
-        </transition-group>
+        </div>
+
+
+        <transition-group name="segments" tag="div">
+      
+                <div class="face "  v-for="face in indexed_face_tracks" v-on:click="segment_clicked(face.start_time)" v-bind:key="face.thumbnail">
+                    <img v-bind:src="'data:image/png;base64, ' +  face.thumbnail" > </img>
+                    <div>
+                        <bar-chart v-bind:label="'Glasses'" v-bind:percent="face.attributes.glasses*100"></bar-chart>
+                        <bar-chart v-bind:label="'Eyes visible'" v-bind:percent="face.attributes.eyes_visible*100"></bar-chart>
+                        <bar-chart v-bind:label="'Headwear'" v-bind:percent="face.attributes.headwear*100"></bar-chart>
+                        <bar-chart v-bind:label="'Looking at camera'" v-bind:percent="face.attributes.looking_at_camera*100"></bar-chart>
+                        <bar-chart v-bind:label="'Mouth open'" v-bind:percent="face.attributes.mouth_open*100"></bar-chart>
+                        <bar-chart v-bind:label="'Smiling'" v-bind:percent="face.attributes.smiling*100"></bar-chart>
+                    </div>
+                </div>
+            </transition-group>
     </div>
     `,
     mounted: function () {
@@ -143,7 +203,7 @@ Vue.component('face-detection-viz', {
     }
 })
 
-
+// define component
 
 
 
@@ -182,6 +242,12 @@ class Face_Track {
         this.end_time = nullable_time_offset_to_seconds(track.segment.end_time_offset)
         this.confidence = track.confidence
         this.thumbnail = json_data.thumbnail
+        this.attributes = {}
+
+        track.attributes.forEach(attribute => {
+            this.attributes[attribute.name] = attribute.confidence
+        })
+
 
         this.frames = []
 

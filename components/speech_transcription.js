@@ -12,8 +12,9 @@ style.innerHTML = `
 }
 
 .speech{
-    padding:15px;
-    margin:0;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
 }
 
 .current_word{
@@ -21,8 +22,7 @@ style.innerHTML = `
 }
 
 .current_speech{
-
-    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 20%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+    border: solid 2px #4285F4;
 }
 `;
 document.getElementsByTagName('head')[0].appendChild(style);

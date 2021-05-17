@@ -26,12 +26,16 @@
             text-align: center;
         }
 
-        h1,h2,h3,h4,h5{
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
             color: #5d5d5d;
         }
 
         #video-conatiner {
-            
+
             position: relative;
             width: 800px;
             margin: 15px;
@@ -69,7 +73,7 @@
             width: 250px;
         }
 
-        #upload-data > p{
+        #upload-data>p {
             text-align: justify;
         }
 
@@ -124,6 +128,9 @@
         .material-icons {
             vertical-align: middle;
             font-size: 19px;
+        }
+
+        .nav-tab>.material-icons {
             color: #0F9D58;
         }
     </style>
@@ -155,11 +162,15 @@
 
         <div id="upload-data">
             <h5>Try with your data</h5>
-            <p>You can analyse a video by following the instructions <a target="_blank" href="https://cloud.google.com/video-intelligence/docs/quickstart">here</a>. 
-                Also see the script <a target="_blank"  href="https://github.com/ZackAkil/video-intelligence-api-visualiser/blob/main/run_video_intelligence.py">here</a> if you want to run all features at once.
+            <p>You can analyse a video by following the instructions <a target="_blank"
+                    href="https://cloud.google.com/video-intelligence/docs/quickstart">here</a>.
+                Also see the script <a target="_blank"
+                    href="https://github.com/ZackAkil/video-intelligence-api-visualiser/blob/main/run_video_intelligence.py">here</a>
+                if you want to run all features at once.
             </p>
 
-            <p>This app <b><u>doesn't</u></b> send or store any of your video or annotation data. It just visualises local data files.</p>
+            <p>This app <b><u>doesn't</u></b> send or store any of your video or annotation data. It just visualises
+                local data files.</p>
             <div class="upload-area" ondrop="drop_video(event)" ondragover="drag_enter(event)">
                 <p>Your video</p>
                 <input id="video_input" type="file" accept="video/*" />
@@ -244,13 +255,13 @@
         // define component
         Vue.component('annotations-nav-tab', {
             props: ['title', 'current_view', 'data_id', 'detected_features'],
-            computed:{
-                has_data:function(){
+            computed: {
+                has_data: function () {
                     return this.detected_features.includes(this.data_id)
                 }
             },
             template: `
-            <div v-bind:class="{selected:current_view == title, disabled:(!has_data)}">{{title}}
+            <div class="nav-tab" v-bind:class="{selected:current_view == title, disabled:(!has_data)}">{{title}}
                 <span v-if="has_data" class="material-icons">
                     check_circle
                 </span>

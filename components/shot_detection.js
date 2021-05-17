@@ -2,6 +2,27 @@
 var style = document.createElement('style');
 style.innerHTML = `
 
+.scene{
+    display: inline-block;
+    margin: 5px;
+    background-color: #4285F4;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+
+    color:  black;
+    background-color: white;
+    border: solid 2px #4285F4;
+}
+
+.scene.current{
+    color: white;
+    
+    background-color: #0F9D58;
+
+    background-color: #4285F4;
+}
 
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
@@ -42,7 +63,12 @@ Vue.component('shot-detection-viz', {
 
                 this.detected_shots.forEach(element => {
                     const detected_shot = new Detected_Shot(element)
+
+                    if (detected_shot.within_time(this.current_time))
+                        detected_shot.current_shot = true
+
                     indexed_shots.push(detected_shot)
+                    
                     // if (detected_label.segments.length > 0)
                     //     indexed_segments.push(detected_label)
                 })
@@ -70,22 +96,31 @@ Vue.component('shot-detection-viz', {
 
     <div class="data-warning" v-if="detected_shots.length == 0"> No shot data in JSON</div>
 
-    <div v-for="shot in indexed_detected_shots" v-on:click="shot_clicked(shot)"> {{shot.start_time}} -> {{shot.end_time}}</div>
+    <div class="scene" v-for="shot in indexed_detected_shots" v-on:click="shot_clicked(shot)" v-bind:class="{ current: shot.current_shot }"> {{shot.start_time.toFixed(2)}}s 
+    <span class="material-icons">
+    horizontal_rule
+    </span>
+    ({{shot.duration.toFixed(2)}}s)
+    
+    <span class="material-icons">
+        east
+    </span>
+    {{shot.end_time.toFixed(2)}}s</div>
 
     </div>
     `,
     mounted: function () {
         console.log('mounted component')
 
-        // const component = this
+        const component = this
 
-        // this.interval_timer = setInterval(function () {
-        //     component.current_time = video.currentTime
-        // }, 1000 / 10)
+        this.interval_timer = setInterval(function () {
+            component.current_time = video.currentTime
+        }, 1000 / 5)
     },
     beforeDestroy: function () {
         console.log('destroying component')
-        // clearInterval(this.interval_timer)
+        clearInterval(this.interval_timer)
     }
 })
 
@@ -94,6 +129,8 @@ class Detected_Shot {
     constructor(json_data) {
         this.start_time = nullable_time_offset_to_seconds(json_data.start_time_offset)
         this.end_time = nullable_time_offset_to_seconds(json_data.end_time_offset)
+        this.duration = this.end_time - this.start_time
+        this.current_shot = false
     }
 
     within_time(seconds) {

@@ -26,10 +26,16 @@
             text-align: center;
         }
 
+        h1,h2,h3,h4,h5{
+            color: #5d5d5d;
+        }
+
         #video-conatiner {
+            
             position: relative;
             width: 800px;
-            margin: 15px auto;
+            margin: 15px;
+            display: inline-block;
         }
 
         #video-conatiner>canvas {
@@ -57,7 +63,14 @@
         }
 
         #upload-data {
+            display: inline-block;
             text-align: center;
+            vertical-align: top;
+            width: 250px;
+        }
+
+        #upload-data > p{
+            text-align: justify;
         }
 
         .feature-tabs {
@@ -89,7 +102,7 @@
 
         .upload-area {
 
-            display: inline-block;
+            /* display: inline-block; */
             width: 200px;
             /* height: 62px; */
             border: dashed #ededed 3px;
@@ -101,7 +114,7 @@
 
         .data-warning {
             background-color: #ffffc3;
-            display: inline-block;
+            /* display: inline-block; */
             margin: auto;
             position: relative;
             padding: 15px;
@@ -138,12 +151,15 @@
             <video id="video" controls autoplay muted></video>
         </div>
 
-        <div v-if="data_misaligned" class="data-warning">
-            It looks like the json data dosn't align with the video file, are you sure you have all of the right files
-            uploaded?
-        </div>
+
 
         <div id="upload-data">
+            <h5>Try with your data</h5>
+            <p>You can analyse a video by following the instructions <a target="_blank" href="https://cloud.google.com/video-intelligence/docs/quickstart">here</a>. 
+                Also see the script <a target="_blank"  href="https://github.com/ZackAkil/video-intelligence-api-visualiser/blob/main/run_video_intelligence.py">here</a> if you want to run all features at once.
+            </p>
+
+            <p>This app <b><u>doesn't</u></b> send or store any of your video or annotation data. It just visualises local data files.</p>
             <div class="upload-area" ondrop="drop_video(event)" ondragover="drag_enter(event)">
                 <p>Your video</p>
                 <input id="video_input" type="file" accept="video/*" />
@@ -152,6 +168,11 @@
                 <p>Your .json</p>
                 <input id="json_input" type="file" accept="application/JSON" />
             </div>
+        </div>
+
+        <div v-if="data_misaligned" class="data-warning">
+            It looks like the json data dosn't align with the video file, are you sure you have all of the right files
+            uploaded?
         </div>
 
 

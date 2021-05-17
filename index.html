@@ -60,12 +60,12 @@
             text-align: center;
         }
 
-        #feature-tabs {
+        .feature-tabs {
             margin: 15px;
             text-align: center;
         }
 
-        #feature-tabs>div {
+        .feature-tabs>div {
             display: inline-block;
             font-size: 1.2em;
             padding: 12px;
@@ -75,8 +75,12 @@
         }
 
 
-        #feature-tabs>.selected {
+        .feature-tabs>.selected {
             border-bottom: 2px solid #4285F4;
+        }
+
+        .feature-tabs>.disabled {
+            color: #cdcdcd;
         }
 
         .logo {
@@ -150,46 +154,10 @@
             </div>
         </div>
 
-        <div id="feature-tabs">
-            <data-nav v-bind:title="'Object Tracking'" v-bind:data_id="'object_annotations'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Label Detection'" v-bind:data_id="'shot_label_annotations'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Shot Detection'" v-bind:data_id="'shot_annotations'"
-                v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Speech Transcription'" v-bind:data_id="'speech_transcriptions'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Person Detection'" v-bind:data_id="'person_detection_annotations'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Face Detection'" v-bind:data_id="'face_detection_annotations'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Logo Recognition'" v-bind:data_id="'logo_recognition_annotations'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Text Detection'" v-bind:data_id="'text_annotations'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-            <data-nav v-bind:title="'Explicit Content Detection'" v-bind:data_id="'explicit_annotation'"
-            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
-                v-on:nav-clicked="set_current_view">
-            </data-nav>
-        </div>
 
-
+        <annotations-nav v-bind:title_ids_dict="title_ids_dict" v-bind:detected_features="detected_features"
+            v-bind:current_view="current_view" v-on:nav-clicked="set_current_view">
+        </annotations-nav>
 
         <object-tracking-viz v-if="current_view == 'Object Tracking'" id="object_tracks" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></object-tracking-viz>
@@ -253,19 +221,36 @@
 
 
         // define component
-        Vue.component('data-nav', {
+        Vue.component('annotations-nav-tab', {
             props: ['title', 'current_view', 'data_id', 'detected_features'],
+            computed:{
+                has_data:function(){
+                    return this.detected_features.includes(this.data_id)
+                }
+            },
+            template: `
+            <div v-bind:class="{selected:current_view == title, disabled:(!has_data)}">{{title}}
+                <span v-if="has_data" class="material-icons">
+                    check_circle
+                </span>
+            </div>
+            `
+        })
+
+        Vue.component('annotations-nav', {
+            props: ['title_ids_dict', 'current_view', 'detected_features'],
             methods: {
-                nav_clicked: function () {
-                    this.$emit('nav-clicked', this.title)
+                nav_clicked: function (title) {
+                    this.$emit('nav-clicked', title)
                 },
             },
             template: `
-            <div v-bind:class="{selected:current_view == title}"
-                v-on:click="nav_clicked()">{{title}}
-                <span v-if="detected_features.includes(data_id)" class="material-icons">
-                    check_circle
-                </span>
+            <div class="feature-tabs">
+                <annotations-nav-tab v-for="id, title in title_ids_dict"
+                    v-bind:title="title" v-bind:data_id="id"
+                    v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                    v-on:click.native="nav_clicked(title)">
+                </annotations-nav-tab>
             </div>
             `
         })
@@ -277,7 +262,18 @@
                 json_data: {},
                 video_info: { width: 800, height: 500, length: 252 },
                 video_length: 252,
-                current_view: 'Object Tracking'
+                current_view: 'Object Tracking',
+                title_ids_dict: {
+                    'Object Tracking': 'object_annotations',
+                    'Label Detection': 'shot_label_annotations',
+                    'Shot Detection': 'shot_annotations',
+                    'Speech Transcription': 'speech_transcriptions',
+                    'Person Detection': 'person_detection_annotations',
+                    'Face Detection': 'face_detection_annotations',
+                    'Logo Recognition': 'logo_recognition_annotations',
+                    'Text Detection': 'text_annotations',
+                    'Explicit Content Detection': 'explicit_annotation'
+                }
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })

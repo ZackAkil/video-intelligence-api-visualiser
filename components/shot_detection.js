@@ -7,7 +7,7 @@ style.innerHTML = `
     margin: 5px;
     background-color: #4285F4;
     color: white;
-    padding: 5px;
+    padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
 

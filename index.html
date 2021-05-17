@@ -4,12 +4,13 @@
 <head>
 
     <title>Video Intelligence API Visualiser</title>
-    <link rel="icon" type="image/png" href="image.png"/>
+    <link rel="icon" type="image/png" href="image.png" />
 
     <meta name="description" content="Interactive visualiser for the Google Cloud Video Intelligence API.">
     <meta name="keywords" content="google cloud, video, intelligence, api, video intelligence api, google cloud">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
@@ -102,11 +103,19 @@
             padding: 15px;
             text-align: center;
         }
+
+        .material-icons {
+            vertical-align: middle;
+            font-size: 19px;
+            color: #0F9D58;
+        }
     </style>
 </head>
 
 
 <body>
+
+
 
     <div id="app">
 
@@ -142,63 +151,84 @@
         </div>
 
         <div id="feature-tabs">
-            <div v-bind:class="{selected:current_view == 'object_tracking'}"
-                v-on:click="current_view = 'object_tracking'">Object Tracking</div>
-            <div v-bind:class="{selected:current_view == 'label_detection'}"
-                v-on:click="current_view = 'label_detection'">Label Detection</div>
-            <div v-bind:class="{selected:current_view == 'shot_detection'}"
-                v-on:click="current_view = 'shot_detection'">Shot Detection</div>
-            <div v-bind:class="{selected:current_view == 'speech_transcription'}"
-                v-on:click="current_view = 'speech_transcription'">Speech Transcription</div>
-            <div v-bind:class="{selected:current_view == 'person_detection'}"
-                v-on:click="current_view = 'person_detection'">Person Detection</div>
-            <div v-bind:class="{selected:current_view == 'face_detection'}"
-                v-on:click="current_view = 'face_detection'">Face Detection</div>
-            <div v-bind:class="{selected:current_view == 'logo_recognition'}"
-                v-on:click="current_view = 'logo_recognition'">Logo Recognition</div>
-            <div v-bind:class="{selected:current_view == 'text_detection'}"
-                v-on:click="current_view = 'text_detection'">Text Detection</div>
-            <div v-bind:class="{selected:current_view == 'explicit_content_detection'}"
-                v-on:click="current_view = 'explicit_content_detection'">Explicit Content Detection</div>
+            <data-nav v-bind:title="'Object Tracking'" v-bind:data_id="'object_annotations'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Label Detection'" v-bind:data_id="'shot_label_annotations'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Shot Detection'" v-bind:data_id="'shot_annotations'"
+                v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Speech Transcription'" v-bind:data_id="'speech_transcriptions'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Person Detection'" v-bind:data_id="'person_detection_annotations'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Face Detection'" v-bind:data_id="'face_detection_annotations'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Logo Recognition'" v-bind:data_id="'logo_recognition_annotations'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Text Detection'" v-bind:data_id="'text_annotations'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
+            <data-nav v-bind:title="'Explicit Content Detection'" v-bind:data_id="'explicit_annotation'"
+            v-bind:detected_features="detected_features" v-bind:current_view="current_view"
+                v-on:nav-clicked="set_current_view">
+            </data-nav>
         </div>
 
 
 
-        <object-tracking-viz v-if="current_view == 'object_tracking'" id="object_tracks" v-bind:json_data="json_data"
+        <object-tracking-viz v-if="current_view == 'Object Tracking'" id="object_tracks" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></object-tracking-viz>
 
-        <label-detection-viz v-if="current_view == 'label_detection'" id="label_detection" v-bind:json_data="json_data"
+        <label-detection-viz v-if="current_view == 'Label Detection'" id="label_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video"></label-detection-viz>
 
-        <shot-detection-viz v-if="current_view == 'shot_detection'" id="shot_detection" v-bind:json_data="json_data"
+        <shot-detection-viz v-if="current_view == 'Shot Detection'" id="shot_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:shot-clicked="jump_video"></shot-detection-viz>
 
-        <speech-transcription-viz v-if="current_view == 'speech_transcription'" id="speech_transcription"
+        <speech-transcription-viz v-if="current_view == 'Speech Transcription'" id="speech_transcription"
             v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:word-clicked="jump_video">
         </speech-transcription-viz>
 
-        <person-detection-viz v-if="current_view == 'person_detection'" id="person_detection"
+        <person-detection-viz v-if="current_view == 'Person Detection'" id="person_detection"
             v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </person-detection-viz>
 
-        <face-detection-viz v-if="current_view == 'face_detection'" id="face_detection" v-bind:json_data="json_data"
+        <face-detection-viz v-if="current_view == 'Face Detection'" id="face_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </face-detection-viz>
 
-        <logo-recognition-viz v-if="current_view == 'logo_recognition'" id="logo_recognition"
+        <logo-recognition-viz v-if="current_view == 'Logo Recognition'" id="logo_recognition"
             v-bind:json_data="json_data" v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </logo-recognition-viz>
 
-        <text-detection-viz v-if="current_view == 'text_detection'" id="text_detection" v-bind:json_data="json_data"
+        <text-detection-viz v-if="current_view == 'Text Detection'" id="text_detection" v-bind:json_data="json_data"
             v-bind:video_info="video_info" v-on:segment-clicked="jump_video">
         </text-detection-viz>
 
-        <explicit-content-detection-viz v-if="current_view == 'explicit_content_detection'"
+        <explicit-content-detection-viz v-if="current_view == 'Explicit Content Detection'"
             id="explicit_content_detection" v-bind:json_data="json_data" v-bind:video_info="video_info"
             v-on:shot-clicked="jump_video">
         </explicit-content-detection-viz>
 
     </div>
+
+
+
 
     <script src="utils/utils.js"></script>
 
@@ -220,17 +250,41 @@
             video.play()
         }
 
+
+
+        // define component
+        Vue.component('data-nav', {
+            props: ['title', 'current_view', 'data_id', 'detected_features'],
+            methods: {
+                nav_clicked: function () {
+                    this.$emit('nav-clicked', this.title)
+                },
+            },
+            template: `
+            <div v-bind:class="{selected:current_view == title}"
+                v-on:click="nav_clicked()">{{title}}
+                <span v-if="detected_features.includes(data_id)" class="material-icons">
+                    check_circle
+                </span>
+            </div>
+            `
+        })
+
+
         var app = new Vue({
             el: '#app',
             data: {
                 json_data: {},
                 video_info: { width: 800, height: 500, length: 252 },
                 video_length: 252,
-                current_view: 'object_tracking'
+                current_view: 'Object Tracking'
             }, methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
                     jump_video_to_time(event_data.seconds)
+                },
+                set_current_view: function (new_view) {
+                    this.current_view = new_view
                 }
             },
             computed: {
@@ -245,6 +299,20 @@
                             }
                         }
                     return false
+                },
+                detected_features: function () {
+
+                    var features = []
+
+                    if (!this.json_data.annotation_results)
+                        return features
+
+                    this.json_data.annotation_results.forEach(annotations => {
+                        console.log(Object.keys(annotations))
+                        features = features.concat(Object.keys(annotations))
+                    })
+
+                    return features
                 }
             }
         })

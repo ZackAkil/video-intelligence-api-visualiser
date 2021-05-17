@@ -5,13 +5,20 @@ style.innerHTML = `
 .current_labels > div{
     display: inline-block;
     margin: 5px;
-    background-color: white;
-    border-radius: 5px;
     padding:5px;
+    border-radius: 5px;
+
+    color:  black;
+    background-color: white;
+    border: solid 2px #4285F4;
+}
+
+.current_labels > p {
+    margin: 0;
 }
 
 .current_labels{
-    min-height: 45px;
+    min-height: 80px;
 }
 
 `;
@@ -89,7 +96,8 @@ Vue.component('label-detection-viz', {
 
 
         <div class="current_labels">
-            <div class="mdl-shadow--2dp" v-for="label in indexed_detected_labels" v-bind:key="label.name" v-if="label_on_screen(label)">{{label.name}}</div>
+        <p>Current labels:</p>
+            <div v-for="label in indexed_detected_labels" v-bind:key="label.name" v-if="label_on_screen(label)">{{label.name}}</div>
         </div>
 
         <transition-group name="segments" tag="div">

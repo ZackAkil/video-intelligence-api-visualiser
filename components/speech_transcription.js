@@ -12,7 +12,7 @@ style.innerHTML = `
 }
 
 .speech{
-    padding: 5px;
+    padding: 5px 10px;
     margin: 5px;
     border-radius: 5px;
 }

@@ -71,7 +71,9 @@ Vue.component('text-detection-viz', {
 
             this.text_tracks.forEach(element => {
                 // if (element.tracks[0].confidence > this.confidence_threshold)
-                indexed_tracks.push(new Text_Detection(element, this.video_info.height, this.video_info.width))
+                const text_detection = new Text_Detection(element, this.video_info.height, this.video_info.width, this.confidence_threshold)
+                if (text_detection.segments.length)
+                    indexed_tracks.push(text_detection)
             })
 
 
@@ -317,20 +319,23 @@ class Text_Segment {
 
 
 class Text_Detection {
-    constructor(json_data, video_height, video_width) {
+    constructor(json_data, video_height, video_width, confidence_threshold) {
 
         this.text = json_data.text
         this.segments = []
 
         json_data.segments.forEach(segment => {
             const new_segemnt = new Text_Segment(segment, video_height, video_width)
-            this.segments.push(new_segemnt)
+            if (new_segemnt.confidence > confidence_threshold)
+                this.segments.push(new_segemnt)
         })
 
-        this.start_time = this.segments[0].start_time
-        this.end_time = this.segments[this.segments.length - 1].end_time
-        this.start_poly = this.segments[0].frames[0]
-        this.id = this.start_time.toString() + this.end_time.toString() + this.start_poly.toString()
+        if (this.segments.length) {
+            this.start_time = this.segments[0].start_time
+            this.end_time = this.segments[this.segments.length - 1].end_time
+            this.start_poly = this.segments[0].frames[0]
+            this.id = this.start_time.toString() + this.end_time.toString() + this.start_poly.toString()
+        }
     }
 
     has_frames_for_time(seconds) {

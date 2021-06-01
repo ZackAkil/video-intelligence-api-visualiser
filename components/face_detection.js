@@ -7,9 +7,10 @@ style.innerHTML = `
     width: 231px;
     margin: 10px;
     text-align: left;
-    background-color: #f7f7f7;
-    padding: 10px;
-    cursor:pointer;
+    padding: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: solid #F4B400 3px;
 }
 
 .face > img{

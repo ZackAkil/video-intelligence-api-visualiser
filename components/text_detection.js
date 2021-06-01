@@ -135,7 +135,7 @@ Vue.component('text-detection-viz', {
                 
                     <span class="time-pill" 
                         v-for="segment in text.segments" 
-                        v-on:click="segment_clicked(segment.start_time-0.5)" 
+                        v-on:click="segment_clicked(segment.start_time)" 
                     >
                         {{parseInt(segment.start_time)}}s
                     </span>

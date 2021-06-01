@@ -2,7 +2,27 @@
 var style = document.createElement('style');
 style.innerHTML = `
 
+.text-detected{
+    display: inline-block;
+    margin: 5px;
+    border: solid #F4B400 2px;
+    padding: 5px;
+    border-radius: 5px;
+}
 
+.time-pill{
+    color: black;
+    background-color: #F4B400;
+    border-radius: 10px;
+    padding: 0px 4px;
+    margin: 1px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.time-pill:hover{
+    color: white;
+}
 
 `;
 document.getElementsByTagName('head')[0].appendChild(style);
@@ -85,8 +105,8 @@ Vue.component('text-detection-viz', {
                 width: (((segment[1] - segment[0]) / this.video_info.length) * 100).toString() + '%'
             }
         },
-        segment_clicked: function (segment_data) {
-            this.$emit('segment-clicked', { seconds: segment_data[0] })
+        segment_clicked: function (seconds) {
+            this.$emit('segment-clicked', { seconds: seconds })
         }
     },
     template: `
@@ -106,9 +126,22 @@ Vue.component('text-detection-viz', {
             <div v-for="text in indexed_text_tracks" v-bind:key="text.id" v-if="text.has_frames_for_time(current_time)">{{text.text}}</div>
         </div>
 
+        
+        <div>
+        <p>All detected text:</p>
+            <div class="text-detected" v-for="text in indexed_text_tracks">
+                {{text.text}}
 
-        <div v-for="text in indexed_text_tracks">
-            {{text.text}}
+                
+                    <span class="time-pill" 
+                        v-for="segment in text.segments" 
+                        v-on:click="segment_clicked(segment.start_time-0.5)" 
+                    >
+                        {{parseInt(segment.start_time)}}s
+                    </span>
+                
+        
+            </div>
         </div>
     </div>
     `,

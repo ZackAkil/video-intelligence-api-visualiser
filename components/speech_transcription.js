@@ -18,7 +18,7 @@ style.innerHTML = `
 }
 
 .current_word{
-    border-bottom: solid #DB4437 5px;
+    border-bottom: solid #DB4437 3px;
 }
 
 .current_speech{

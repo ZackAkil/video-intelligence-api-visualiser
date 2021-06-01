@@ -14,7 +14,10 @@ Vue.component('text-detection-viz', {
     data: function () {
         return {
             confidence_threshold: 0.5,
+            current_time: 0,
             interval_timer: null,
+            interval_timer_current_text: null,
+            interval_timer_current_text_frame_rate: 10,
             ctx: null,
             frame_rate: 30
         }
@@ -51,38 +54,28 @@ Vue.component('text-detection-viz', {
                 indexed_tracks.push(new Text_Detection(element, this.video_info.height, this.video_info.width))
             })
 
+
+            indexed_tracks.sort((a, b) => (a.start_time > b.start_time) ? 1 : -1)
+
             return indexed_tracks
         },
 
-        object_track_segments: function () {
+        current_indexed_text_tracks: function () {
             ` 
             create the list of cronological time segments that represent just when objects are present on screen
             `
-            const segments = {}
+            const detected_text = []
 
-            // const segments = { 'face': { 'segments': [], 'count': 0 } }
+            if (indexed_text_tracks) {
 
-            // this.indexed_face_tracks.forEach(object_tracks => {
+                indexed_text_tracks.forEach(element => {
+                    if (element.has_frames_for_time(this.current_time))
+                        detected_text.push(element)
+                })
 
-            //     segments['face'].count++
+            }
 
-            //     var added = false
-
-            //     for (let index = 0; index < segments['face'].length; index++) {
-
-            //         const segment = segments['face'].segments[index]
-            //         if (object_tracks.start_time < segment[1]) {
-            //             segments['face'].segments[index][1] = Math.max(segments['face'].segments[index][1], object_tracks.end_time)
-            //             added = true
-            //             break
-            //         }
-            //     }
-
-            //     if (!added)
-            //         segments['face'].segments.push([object_tracks.start_time, object_tracks.end_time])
-            // })
-
-            return segments
+            return detected_text
         }
     },
     methods: {
@@ -107,22 +100,16 @@ Vue.component('text-detection-viz', {
 
         <div class="data-warning" v-if="text_tracks.length == 0"> No face detection data in JSON</div>
 
+
+        <div class="current_labels">
+        <p>Detected text on screen:</p>
+            <div v-for="text in indexed_text_tracks" v-bind:key="text.id" v-if="text.has_frames_for_time(current_time)">{{text.text}}</div>
+        </div>
+
+
         <div v-for="text in indexed_text_tracks">
             {{text.text}}
         </div>
-
-        <transition-group name="segments" tag="div">
-            
-            <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
-                <div class="label">{{key}} ({{segments.count}})</div>
-                <div class="segment-timeline">
-                    <div class="segment" v-for="segment in segments.segments" 
-                                        v-bind:style="segment_style(segment)" 
-                                        v-on:click="segment_clicked(segment)"
-                    ></div>
-                </div>
-            </div>
-        </transition-group>
     </div>
     `,
     mounted: function () {
@@ -135,16 +122,25 @@ Vue.component('text-detection-viz', {
         const component = this
 
         this.interval_timer = setInterval(function () {
-            console.log('running')
+            // console.log('running')
             const object_tracks = component.indexed_text_tracks
 
             draw_bounding_polys(object_tracks, ctx)
 
         }, 1000 / this.frame_rate)
+
+
+
+        this.interval_timer_current_text = setInterval(function () {
+            // console.log('running')
+            component.current_time = video.currentTime
+
+        }, 1000 / this.interval_timer_current_text_frame_rate)
     },
     beforeDestroy: function () {
         console.log('destroying component')
         clearInterval(this.interval_timer)
+        clearInterval(this.interval_timer_current_text)
         this.ctx.clearRect(0, 0, 800, 500)
     }
 })
@@ -200,7 +196,16 @@ class Text_Frame {
         })
 
     }
+
+    toString() {
+        var output = ''
+        this.poly.forEach(point => {
+            output += point.x.toString() + point.y.toString()
+        })
+        return output
+    }
 }
+
 
 class Text_Segment {
     constructor(json_data, video_height, video_width) {
@@ -282,13 +287,17 @@ class Text_Detection {
     constructor(json_data, video_height, video_width) {
 
         this.text = json_data.text
-
         this.segments = []
 
         json_data.segments.forEach(segment => {
             const new_segemnt = new Text_Segment(segment, video_height, video_width)
             this.segments.push(new_segemnt)
         })
+
+        this.start_time = this.segments[0].start_time
+        this.end_time = this.segments[this.segments.length - 1].end_time
+        this.start_poly = this.segments[0].frames[0]
+        this.id = this.start_time.toString() + this.end_time.toString() + this.start_poly.toString()
     }
 
     has_frames_for_time(seconds) {

@@ -342,6 +342,7 @@
                 },
                 remote_json_input_url: function () {
                     load_json_from_url(this.remote_json_input_url)
+                    app.jump_to_first_valid_feature()
                     router.push({ query: { json: this.remote_json_input_url, video: this.remote_video_input_url } })
                 }
             },
@@ -354,6 +355,19 @@
                 },
                 set_current_view: function (new_view) {
                     this.current_view = new_view
+                },
+                jump_to_first_valid_feature: function(){
+
+                    const feature_ids = Object.values(app.title_ids_dict)
+                    const feature_view_names = Object.keys(app.title_ids_dict)
+
+                    for (let index = 0; index < feature_ids.length; index++) {
+                        const feature = feature_ids[index]
+                        if (this.detected_features.includes(feature)){
+                            this.current_view = feature_view_names[index]
+                            return
+                        }
+                    }                    
                 }
             },
             computed: {

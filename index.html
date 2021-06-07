@@ -19,6 +19,8 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.5.1/vue-router.min.js"></script>
+
 
 
     <style>
@@ -114,9 +116,14 @@
             /* height: 62px; */
             border: dashed #ededed 3px;
             border-radius: 5px;
-            padding: 15px;
-            margin: 15px;
+            padding: 5px;
+            margin: 10px;
             overflow: hidden;
+        }
+
+        .upload-area>p {
+            margin-bottom: 5px;
+
         }
 
         .data-warning {
@@ -144,7 +151,7 @@
 
 
 
-    <div id="app"  class="mdl-layout--fixed-header">
+    <div id="app" class="mdl-layout--fixed-header">
 
         <header class="mdl-layout__header">
             <div class="mdl-layout-icon">
@@ -158,22 +165,21 @@
 
         <div id="video-conatiner">
             <canvas id="my_canvas" width="800" height="500"></canvas>
-            <video id="video" controls autoplay></video>
+            <video id="video" controls autoplay muted></video>
         </div>
 
 
 
         <div id="upload-data">
             <h5>Try with your data</h5>
-            <p>You can analyse a video by following the instructions <a target="_blank"
+            <p>Analyse a video by following the instructions <a target="_blank"
                     href="https://cloud.google.com/video-intelligence/docs/quickstart?utm_source=ext&utm_medium=partner&utm_campaign=CDR_zac_aiml_vid_intel_demo_interactive demo_060221&utm_content=-">here</a>.
-                Also see the script <a target="_blank"
-                    href="https://github.com/ZackAkil/video-intelligence-api-visualiser/blob/main/run_video_intelligence.py">here</a>
-                if you want to run all features at once.
+                Run all of the features at once with <a target="_blank"
+                    href="https://github.com/ZackAkil/video-intelligence-api-visualiser/blob/main/run_video_intelligence.py">this
+                    script</a>.
             </p>
 
-            <p>This app <b><u>doesn't</u></b> send or store any of your video or annotation data. It just visualises
-                local data files.</p>
+            <p>This app <b><u>doesn't</u></b> send or store any of your video or annotation data.</p>
             <div class="upload-area" ondrop="drop_video(event)" ondragover="drag_enter(event)">
                 <p>Your video</p>
                 <input id="video_input" type="file" accept="video/*" />
@@ -181,6 +187,15 @@
             <div class="upload-area" ondrop="drop_json(event)" ondragover="drag_enter(event)">
                 <p>Your .json</p>
                 <input id="json_input" type="file" accept="application/JSON" />
+            </div>
+
+
+            <div>
+                <p>Remote files</p>
+                <input id="remote_video_input" type="text" placeholder="video url" v-model="remote_video_input_url" />
+                <br><br>
+                <input id="remote_json_input" type="text" placeholder=".json url" v-model="remote_json_input_url" />
+
             </div>
         </div>
 
@@ -291,7 +306,15 @@
         })
 
 
+
+        var router = new VueRouter({
+            mode: 'history',
+            // routes: { path: '/match/:id', component: test_com}
+        });
+
+
         var app = new Vue({
+            router,
             el: '#app',
             data: {
                 json_data: {},
@@ -308,8 +331,23 @@
                     'Speech Transcription': 'speech_transcriptions',
                     'Text Detection': 'text_annotations',
                     'Explicit Content Detection': 'explicit_annotation'
+                },
+                remote_video_input_url: '',
+                remote_json_input_url: ''
+            },
+            watch: {
+                remote_video_input_url: function () {
+                    load_video_from_url(this.remote_video_input_url)
+                    router.push({ query: { json: this.remote_json_input_url, video: this.remote_video_input_url } })
+                },
+                remote_json_input_url: function () {
+                    load_json_from_url(this.remote_json_input_url)
+                    router.push({ query: { json: this.remote_json_input_url, video: this.remote_video_input_url } })
                 }
-            }, methods: {
+            },
+
+
+            methods: {
                 jump_video: function (event_data) {
                     document.querySelector('video').scrollIntoView({ 'behavior': 'smooth', 'block': 'center' })
                     jump_video_to_time(event_data.seconds)
@@ -335,7 +373,7 @@
 
                     var features = []
 
-                    if (!this.json_data.annotation_results)
+                    if (!this.json_data || !this.json_data.annotation_results)
                         return features
 
                     this.json_data.annotation_results.forEach(annotations => {
@@ -345,8 +383,13 @@
 
                     return features
                 }
+            },
+            mounted: function () {
+
+
             }
         })
+
 
 
 
@@ -430,8 +473,24 @@
         video_input.addEventListener('change', load_video_dragged, false)
         json_input.addEventListener('change', load_json_dragged, false)
 
-        load_json_from_url("assets/test_json.json")
-        load_video_from_url("assets/test_video.mp4")
+
+
+        // check url for remote data urls
+        if (app.$route.query.json) {
+            console.log('loading remote json ', app.$route.query.json)
+            app.remote_json_input_url = app.$route.query.json
+            
+        } else {
+            load_json_from_url("assets/test_json.json")
+        }
+
+        if (app.$route.query.video) {
+            console.log('loading remote video ', app.$route.query.video)
+            app.remote_video_input_url = app.$route.query.video
+
+        } else {
+            load_video_from_url("assets/test_video.mp4")
+        }
 
 
 

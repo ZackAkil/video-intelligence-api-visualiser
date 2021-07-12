@@ -445,6 +445,17 @@
         load_video_from_url("assets/test_video.mp4")
 
 
+        // check for hash code in url 
+
+        if (app.$route.hash) {
+            const hash_value = app.$route.hash.substring(1)
+            if (title_ids_dict.includes(hash_value)){
+                app.current_view = hash_value
+            } 
+
+        }
+
+
 
     </script>
 

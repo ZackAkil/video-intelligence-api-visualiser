@@ -19,6 +19,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
     
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-N80GH8KX9W"></script>
@@ -301,8 +302,15 @@
             `
         })
 
+        var router = new VueRouter({
+            mode: 'history',
+            // routes: { path: '/match/:id', component: test_com}
+        });
+
+
 
         var app = new Vue({
+            router,
             el: '#app',
             data: {
                 json_data: {},
@@ -327,6 +335,9 @@
                 },
                 set_current_view: function (new_view) {
                     this.current_view = new_view
+                    router.push({hash: '#'+new_view  })
+
+
                 }
             },
             computed: {
@@ -448,8 +459,8 @@
         // check for hash code in url 
 
         if (app.$route.hash) {
-            const hash_value = app.$route.hash.substring(1)
-            if (title_ids_dict.includes(hash_value)){
+            const hash_value = decodeURI(app.$route.hash.substring(1))
+            if (hash_value in app.title_ids_dict){
                 app.current_view = hash_value
             } 
 

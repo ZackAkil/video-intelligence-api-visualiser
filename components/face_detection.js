@@ -245,9 +245,10 @@ class Face_Track {
         this.thumbnail = json_data.thumbnail
         this.attributes = {}
 
-        track.attributes.forEach(attribute => {
-            this.attributes[attribute.name] = attribute.confidence
-        })
+        if (track.attributes)
+            track.attributes.forEach(attribute => {
+                this.attributes[attribute.name] = attribute.confidence
+            })
 
 
         this.frames = []

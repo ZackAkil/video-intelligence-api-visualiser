@@ -248,6 +248,11 @@
             v-on:shot-clicked="jump_video">
         </explicit-content-detection-viz>
 
+        <celebrity-recognition-viz v-if="current_view == 'Celebrity Recognition'"
+            id="celebrity_recognition" v-bind:json_data="json_data" v-bind:video_info="video_info"
+            v-on:segment-clicked="jump_video">
+        </celebrity-recognition-viz>
+
     </div>
 
 
@@ -264,6 +269,7 @@
     <script src="components/logo_recognition.js"></script>
     <script src="components/text_detection.js"></script>
     <script src="components/explicit_content_detection.js"></script>
+    <script src="components/celebrity_recognition.js"></script>
 
     <script>
 
@@ -334,7 +340,8 @@
                     'Logo Recognition': 'logo_recognition_annotations',
                     'Speech Transcription': 'speech_transcriptions',
                     'Text Detection': 'text_annotations',
-                    'Explicit Content Detection': 'explicit_annotation'
+                    'Explicit Content Detection': 'explicit_annotation',
+                    'Celebrity Recognition': 'celebrity_recognition_annotations'
                 }
             }, methods: {
                 jump_video: function (event_data) {

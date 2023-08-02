@@ -9,6 +9,7 @@ style.innerHTML = `
 document.getElementsByTagName('head')[0].appendChild(style);
 
 
+
 // define component
 Vue.component('celebrity-recognition-viz', {
     props: ['json_data', 'video_info'],
@@ -20,19 +21,28 @@ Vue.component('celebrity-recognition-viz', {
         }
     },
     computed: {
+
         celebrity_tracks: function () {
             `
-            Extract just the celebrity tracking data from json
+            Extract just the logo tracking data from json
             `
 
-            if (!this.json_data.annotation_results)
-                return []
+            if (!this.json_data.annotation_results) return []
 
+            const tracksWithCelebrities = []
             for (let index = 0; index < this.json_data.annotation_results.length; index++) {
-                if ('celebrity_recognition_annotations' in this.json_data.annotation_results[index])
-                    return this.json_data.annotation_results[index].celebrity_recognition_annotations
+                if ('celebrity_recognition_annotations' in this.json_data.annotation_results[index] && 'celebrity_tracks' in this.json_data.annotation_results[index].celebrity_recognition_annotations) {
+                    const celebrityTracks = this.json_data.annotation_results[index].celebrity_recognition_annotations.celebrity_tracks
+                    celebrityTracks.forEach(track => {
+                        if ('celebrities' in track) {
+                            track.celebrities.forEach(() => {
+                                tracksWithCelebrities.push(track)
+                            })
+                        }
+                    })
+                }
             }
-            return []
+            return tracksWithCelebrities
         },
 
         indexed_celebrity_tracks: function () {
@@ -42,7 +52,6 @@ Vue.component('celebrity-recognition-viz', {
             `
 
             const indexed_tracks = []
-
 
             this.celebrity_tracks.forEach(element => {
                 const detected_celebrity = new Celebrity_Detected(element, this.video_info.height, this.video_info.width, this.confidence_threshold)
@@ -117,7 +126,7 @@ Vue.component('celebrity-recognition-viz', {
         <div class="data-warning" v-if="celebrity_tracks.length == 0"> No celebrity detection data in JSON</div>
 
         <transition-group name="segments" tag="div">
-            
+
             <div class="segment-container" v-for="segments, key in object_track_segments" v-bind:key="key + 'z'">
                 <div class="label">{{key}} ({{segments.count}})</div>
                 <div class="segment-timeline">
@@ -175,13 +184,13 @@ class Celebrity_Frame {
 class Celebrity_Track {
     constructor(json_data, video_height, video_width) {
 
-        this.start_time = nullable_time_offset_to_seconds(json_data.segment.start_time_offset)
-        this.end_time = nullable_time_offset_to_seconds(json_data.segment.end_time_offset)
+        this.start_time = nullable_time_offset_to_seconds(json_data.face_track.segment.start_time_offset)
+        this.end_time = nullable_time_offset_to_seconds(json_data.face_track.segment.end_time_offset)
         this.confidence = json_data.confidence
 
         this.frames = []
 
-        json_data.timestamped_objects.forEach(frame => {
+        json_data.face_track.timestamped_objects.forEach(frame => {
             this.frames.push(new Celebrity_Frame(frame, video_height, video_width))
         })
     }
@@ -242,16 +251,17 @@ class Celebrity_Track {
 
 
 class Celebrity_Detected {
-    constructor(json_data, video_height, video_width, confidence_threshold) {
-
-        this.name = json_data.entity.description
-        this.id = json_data.entity.entity_id
+    constructor(track, video_height, video_width, confidence_threshold) {
 
         this.segments = []
 
-        json_data.tracks.forEach(track => {
-            if (track.confidence > confidence_threshold)
+        track.celebrities.forEach(celebrity => {
+            // Some outputs do not contain a confidence
+            if (!celebrity.confidence || celebrity.confidence > confidence_threshold) {
+                this.name = celebrity.celebrity.display_name
+                this.id = celebrity.celebrity.name
                 this.segments.push(new Celebrity_Track(track, video_height, video_width))
+            }
         })
     }
 

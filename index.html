@@ -423,10 +423,7 @@
             console.log('keys ->>', Object.keys(json_data))
             // check validity of json
             if (!('annotation_results' in json_data)) {
-                alert("⚠️ Sorry, json output from shell not supported⚠️ To fix set the 'output_uri' \ 
-configuration when calling the Video Intelligence API so that it \
-outputs a .json file to Google Cloud Storage, and then download that .json file \
-Find links to example script at the top right of the screen.")
+                alert("⚠️ Sorry, json output from shell not supported ⚠️ To fix set the 'output_uri' configuration when calling the Video Intelligence API so that it outputs a .json file to Google Cloud Storage, and then download that .json file. Find links to example script at the top right of the screen.")
                 json_input.value = null
             }
 

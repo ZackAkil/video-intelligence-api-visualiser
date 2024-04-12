@@ -2,7 +2,7 @@
 
 An app that visualises annotations from the [Google Cloud Video Intelligence API](https://cloud.google.com/video-intelligence?utm_source=ext&utm_medium=partner&utm_campaign=CDR_zac_aiml_vid_intel_demo_interactive%20demo_060221&utm_content=-).
 
-Follow [this tutorial](https://cloud.google.com/video-intelligence-storage-trigger) to see how to feed in your own data.
+Use [this script](https://github.com/ZackAkil/video-intelligence-api-visualiser/blob/main/run_video_intelligence.py) to generate your own json outputs.
 
 ![](assets/vid_intel_demo.gif)
 
